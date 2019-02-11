@@ -46,7 +46,7 @@ before_script:
   - if [ -n "$OSX_SDK" -a -f depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz ]; then tar -C depends/SDKs -xf depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz; fi
   - make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS
 script:
-  - if [ -n "$USE_SHELL" ]; then export CONFIG_SHELL="$USE_SHELL"; fi
+#  - if [ -n "$USE_SHELL" ]; then export CONFIG_SHELL="$USE_SHELL"; fi
 #- contrib/devtools/git-subtree-check.sh src/univalue
 #- contrib/devtools/git-subtree-check.sh src/secp256k1
 #- contrib/devtools/check-doc.py
@@ -66,6 +66,7 @@ script:
   - if [ "$RUN_TESTS" = "true" -a "$WINE" = "true" ]; then wine src/test/test_3dcoin.exe; fi
   - if [ "$RUN_TESTS" = "true" ]; then qa/pull-tester/rpc-tests.py --coverage; fi
 before_deploy:
+  - if [ -n "$USE_SHELL" ]; then export CONFIG_SHELL="$USE_SHELL"; fi
   - if [ "$HOST" == "x86_64-apple-darwin14" ]; then mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; FILE=3DCoin-Core-$TAG-macosx-generic.dmg; else HERE=$(pwd); cd $OUTDIR; zip -r $HERE/3dcoin-$TAG-$HOST.zip bin/; cd $HERE; FILE="3dcoin-$TAG-$HOST.zip"; fi
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
