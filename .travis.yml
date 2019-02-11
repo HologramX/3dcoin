@@ -24,34 +24,17 @@ env:
   - LASTTAG=$(git describe --tags)
   - TAG="$LASTTAG"
   matrix:
-  - HOST=x86_64-w64-mingw32 DPKG_ADD_ARCH="i386" PACKAGES="python3 nsis g++-mingw-w64-x86-64
-    wine1.6 bc zip unzip libc6-dev libc6-dev-amd64" RUN_TESTS=false GOAL="install-strip"
-    BITCOIN_CONFIG="--enable-gui --enable-reduce-exports --disable-tests" MAKEJOBS="-j4"
-    WINE=true
-  - HOST=x86_64-pc-linux-gnu PACKAGES="bc python3-zmq zip unzip libc6-dev libc6-dev-amd64"
-    RUN_TESTS=false GOAL="install-strip" BITCOIN_CONFIG="--enable-zmq --enable-glibc-back-compat
-    --enable-reduce-exports --disable-tests" CPPFLAGS="-DDEBUG_LOCKORDER -DENABLE_DASH_DEBUG"
-    PYZMQ=true
-  - HOST=arm-linux-gnueabihf DEP_OPTS="NO_QT=1" PACKAGES="g++-arm-linux-gnueabihf
-    libc6-dev-armhf-cross" GOAL="install-strip" BITCOIN_CONFIG="--enable-glibc-back-compat
-    --enable-reduce-exports --disable-tests"
-  - HOST=i686-w64-mingw32 DPKG_ADD_ARCH="i386" PACKAGES="python3 nsis g++-mingw-w64-i686
-    wine1.6 bc zip unzip libc6-dev-i386" RUN_TESTS=false GOAL="install-strip" BITCOIN_CONFIG="--enable-reduce-exports
-    --disable-tests"
-  - HOST=i686-pc-linux-gnu PACKAGES="g++-multilib bc python3-zmq zip unzip libc6-dev
-    libc6-dev-i386" RUN_TESTS=false GOAL="install-strip" BITCOIN_CONFIG="--enable-zmq
-    --enable-glibc-back-compat --enable-reduce-exports --disable-tests LDFLAGS=-static-libstdc++"
-    PYZMQ=true
-  - HOST=x86_64-apple-darwin14 PACKAGES="cmake imagemagick libcap-dev librsvg2-bin
-    libz-dev libbz2-dev libtiff-tools python-dev zip unzip libc6-dev libc6-dev-amd64"
-    BITCOIN_CONFIG="--enable-gui --enable-reduce-exports --disable-tests" OSX_SDK=10.9
-    GOAL="deploy"
+  - HOST=x86_64-w64-mingw32 DPKG_ADD_ARCH="i386" PACKAGES="python3 nsis g++-mingw-w64-x86-64 wine1.6 bc zip unzip libc6-dev libc6-dev-amd64" RUN_TESTS=false GOAL="install-strip" BITCOIN_CONFIG="--enable-gui --enable-reduce-exports --disable-tests" MAKEJOBS="-j4" WINE=true
+  - HOST=x86_64-pc-linux-gnu PACKAGES="bc python3-zmq zip unzip libc6-dev libc6-dev-amd64" RUN_TESTS=false GOAL="install-strip" BITCOIN_CONFIG="--enable-zmq --enable-glibc-back-compat --enable-reduce-exports --disable-tests" CPPFLAGS="-DDEBUG_LOCKORDER -DENABLE_DASH_DEBUG"
+  - HOST=arm-linux-gnueabihf DEP_OPTS="NO_QT=1" PACKAGES="g++-arm-linux-gnueabihf libc6-dev-armhf-cross" GOAL="install-strip" BITCOIN_CONFIG="--enable-glibc-back-compat --enable-reduce-exports --disable-tests"
+  - HOST=i686-w64-mingw32 DPKG_ADD_ARCH="i386" PACKAGES="python3 nsis g++-mingw-w64-i686 wine1.6 bc zip unzip libc6-dev-i386" RUN_TESTS=false GOAL="install-strip" BITCOIN_CONFIG="--enable-reduce-exports --disable-tests"
+  - HOST=i686-pc-linux-gnu PACKAGES="g++-multilib bc python3-zmq zip unzip libc6-dev libc6-dev-i386" RUN_TESTS=false GOAL="install-strip" BITCOIN_CONFIG="--enable-zmq --enable-glibc-back-compat --enable-reduce-exports --disable-tests LDFLAGS=-static-libstdc++"
+  - HOST=x86_64-apple-darwin14 PACKAGES="cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev zip unzip libc6-dev libc6-dev-amd64" BITCOIN_CONFIG="--enable-gui --enable-reduce-exports --disable-tests" OSX_SDK=10.9 GOAL="deploy"
 before_install:
 - travis_retry sudo apt-get install python-dev
 - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |
   sed "s|::|:|g")
 install:
-- if [ "$PYZMQ" = "true" ]; then pip install pyzmq --user ; fi
 - if [ -n "$DPKG_ADD_ARCH" ]; then sudo dpkg --add-architecture "$DPKG_ADD_ARCH" ;
   fi
 - if [ -n "$PACKAGES" ]; then travis_retry sudo apt-get update; fi
@@ -77,11 +60,8 @@ script:
   V=1 ; false )
 before_deploy:
 - if [ -n "$USE_SHELL" ]; then export CONFIG_SHELL="$USE_SHELL"; fi
-- if [ "$HOST" == "x86_64-apple-darwin14" ]; then echo $(pwd); echo $(ls); mv -v 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; echo $(ls);
-  FILE=3DCoin-Core-$TAG-macosx-generic.dmg; else HERE=$(pwd); cd $TRAVIS_BUILD_DIR/../; echo $(pwd); ls;
-  zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; echo $(ls); echo $(pwd); echo $(ls); mv 3dcoin-$TAG-$HOST.zip $HERE/; cd $HERE; echo $(pwd); echo $(ls); FILE="3dcoin-$TAG-$HOST.zip";
+- if [ "$HOST" == "x86_64-apple-darwin14" ]; then echo $(pwd); echo $(ls); mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; FILE=3DCoin-Core-$TAG-macosx-generic.dmg; else HERE=$(pwd); cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $HERE/; cd $HERE; FILE="3dcoin-$TAG-$HOST.zip";
   fi
-#- git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   provider: releases
   api_key:
