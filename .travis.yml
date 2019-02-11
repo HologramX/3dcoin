@@ -23,7 +23,6 @@ env:
   - WINEDEBUG=fixme-all
   - LASTTAG=$(git describe --tags)
   - TAG="$LASTTAG"
-  - USE_SHELL="/bin/bash -x"
   matrix:
   - HOST=x86_64-w64-mingw32 DPKG_ADD_ARCH="i386" PACKAGES="python3 nsis g++-mingw-w64-x86-64 wine1.6 bc zip unzip libc6-dev libc6-dev-amd64" RUN_TESTS=false GOAL="install-strip" BITCOIN_CONFIG="--enable-gui --enable-reduce-exports" MAKEJOBS="-j4" WINE=true
   - HOST=x86_64-pc-linux-gnu PACKAGES="bc python3-zmq zip unzip libc6-dev libc6-dev-amd64" RUN_TESTS=false GOAL="install-strip" BITCOIN_CONFIG="--enable-zmq --enable-glibc-back-compat --enable-reduce-exports --disable-tests" CPPFLAGS="-DDEBUG_LOCKORDER -DENABLE_DASH_DEBUG" PYZMQ=true   
@@ -46,28 +45,15 @@ before_script:
   - if [ -n "$OSX_SDK" -a -f depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz ]; then tar -C depends/SDKs -xf depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz; fi
   - make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS
 script:
-#  - if [ -n "$USE_SHELL" ]; then export CONFIG_SHELL="$USE_SHELL"; fi
-#- contrib/devtools/git-subtree-check.sh src/univalue
-#- contrib/devtools/git-subtree-check.sh src/secp256k1
-#- contrib/devtools/check-doc.py
-#- contrib/devtools/logprint-scanner.py
-  - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then contrib/devtools/lint-whitespace.sh; fi
-  - OUTDIR=$BASE_OUTDIR/$TRAVIS_PULL_REQUEST/$TRAVIS_JOB_NUMBER-$HOST
-  - BITCOIN_CONFIG_ALL="--disable-dependency-tracking --disable-tests --prefix=$TRAVIS_BUILD_DIR/depends/$HOST --bindir=$OUTDIR/bin --libdir=$OUTDIR/lib"
-  - depends/$HOST/native/bin/ccache --max-size=$CCACHE_SIZE
-  - test -n "$USE_SHELL" && eval '"$USE_SHELL" -c "./autogen.sh"' || ./autogen.sh
-  - "./configure --cache-file=config.cache $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG || (cat config.log && false)"
-  - make distdir PACKAGE=3dcoin VERSION=$HOST
-  - cd 3dcoin-$HOST
-  - "./configure --cache-file=../config.cache $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG || ( cat config.log && false)"
+  - cd $TRAVIS_BUILD_DIR/depends
+  - make $MAKEJOBS HOST=$HOST $DEP_OPTS
+  - cd $TRAVIS_BUILD_DIR
+  - ./autogen.sh
+  - CONFIG_SITE=$TRAVIS_BUILD_DIR/depends/$HOST/share/config.site ./configure $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG --prefix=$TRAVIS_BUILD_DIR/../3dcoin-$HOST-$TAG
   - make $MAKEJOBS $GOAL || ( echo "Build failure. Verbose build follows." && make $GOAL V=1 ; false )
-  - export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/depends/$HOST/lib
-  - if [ "$RUN_TESTS" = "true" -a "$WINE" != "true" ]; then make $MAKEJOBS check VERBOSE=1; fi
-  - if [ "$RUN_TESTS" = "true" -a "$WINE" = "true" ]; then wine src/test/test_3dcoin.exe; fi
-  - if [ "$RUN_TESTS" = "true" ]; then qa/pull-tester/rpc-tests.py --coverage; fi
 before_deploy:
   - if [ -n "$USE_SHELL" ]; then export CONFIG_SHELL="$USE_SHELL"; fi
-  - if [ "$HOST" == "x86_64-apple-darwin14" ]; then mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; FILE=3DCoin-Core-$TAG-macosx-generic.dmg; else HERE=$(pwd); cd $OUTDIR; zip -r $HERE/3dcoin-$TAG-$HOST.zip bin/; cd $HERE; FILE="3dcoin-$TAG-$HOST.zip"; fi
+  - if [ "$HOST" == "x86_64-apple-darwin14" ]; then mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; FILE=3DCoin-Core-$TAG-macosx-generic.dmg; else HERE=$(pwd); cd $TRAVIS_BUILD_DIR/../; zip -r $HERE/3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; cd $HERE; FILE="3dcoin-$TAG-$HOST.zip"; fi
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
   provider: releases
