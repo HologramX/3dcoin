@@ -40,7 +40,6 @@ before_script:
   fi
 - if [ -n "$OSX_SDK" -a -f depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz ]; then
   tar -C depends/SDKs -xf depends/sdk-sources/MacOSX${OSX_SDK}.sdk.tar.gz; fi
-- make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS
 script:
 - cd $TRAVIS_BUILD_DIR/depends
 - make $MAKEJOBS HOST=$HOST $DEP_OPTS
@@ -52,9 +51,9 @@ before_deploy:
 - if [ "$HOST" == "x86_64-apple-darwin14" ]; then mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; FILE=3DCoin-Core-$TAG-macosx-generic.dmg; fi
 - if [ "$HOST" == "x86_64-w64-mingw32" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-win-x64.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-win-x64.zip $TRAVIS_BUILD_DIR/; cd $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-win-x64.zip"; fi
 - if [ "$HOST" == "i686-w64-mingw32" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-win-x32.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-win-x32.zip $TRAVIS_BUILD_DIR/; cd $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-win-x32.zip"; fi
-- if [ "$HOST" == "i686-pc-linux-gnu" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-$HOST.zip"; fi
-- if [ "$HOST" == "x86_64-pc-linux-gnu" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-$HOST.zip"; fi
-- if [ "$HOST" == "arm-linux-gnueabihf" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-$HOST.zip"; fi
+- if [ "$HOST" == "i686-pc-linux-gnu" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $TRAVIS_BUILD_DIR/; cd $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-$HOST.zip"; fi
+- if [ "$HOST" == "x86_64-pc-linux-gnu" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $TRAVIS_BUILD_DIR/; cd $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-$HOST.zip"; fi
+- if [ "$HOST" == "arm-linux-gnueabihf" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $TRAVIS_BUILD_DIR/; cd $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-$HOST.zip"; fi
 deploy:
   provider: releases
   api_key:
