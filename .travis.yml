@@ -49,7 +49,7 @@ script:
 - CONFIG_SITE=$TRAVIS_BUILD_DIR/depends/$HOST/share/config.site ./configure $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG --prefix=$TRAVIS_BUILD_DIR/../3dcoin-$HOST-$TAG
 - make $MAKEJOBS $GOAL || ( echo "Build failure. Verbose build follows." && make $GOAL V=1 ; false )
 before_deploy:
-- if [ "$HOST" == "x86_64-apple-darwin14" ]; mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; FILE=3DCoin-Core-$TAG-macosx-generic.dmg; fi
+- if [ "$HOST" == "x86_64-apple-darwin14" ]; then mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; FILE=3DCoin-Core-$TAG-macosx-generic.dmg; fi
 - if [ "$HOST" == "x86_64-w64-mingw32" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-win-x64.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-win-x64.zip $TRAVIS_BUILD_DIR/; cd $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-win-x64.zip"; fi
 - if [ "$HOST" == "i686-w64-mingw32" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-win-x32.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-win-x32.zip $TRAVIS_BUILD_DIR/; cd $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-win-x32.zip"; fi
 - if [ "$HOST" == "i686-pc-linux-gnu" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-$HOST.zip"; fi
