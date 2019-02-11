@@ -77,9 +77,9 @@ script:
   V=1 ; false )
 before_deploy:
 - if [ -n "$USE_SHELL" ]; then export CONFIG_SHELL="$USE_SHELL"; fi
-- if [ "$HOST" == "x86_64-apple-darwin14" ]; then mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg;
-  FILE=3DCoin-Core-$TAG-macosx-generic.dmg; else HERE=$(pwd); cd $TRAVIS_BUILD_DIR/../;
-  zip -r $HERE/3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; cd $HERE; FILE="$HERE/3dcoin-$TAG-$HOST.zip";
+- if [ "$HOST" == "x86_64-apple-darwin14" ]; then echo $(pwd); ls; mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg;
+  FILE=3DCoin-Core-$TAG-macosx-generic.dmg; else HERE=$(pwd); cd $TRAVIS_BUILD_DIR/../; echo $(pwd); ls;
+  zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; cd $HERE; FILE="$TRAVIS_BUILD_DIR/../3dcoin-$TAG-$HOST.zip";
   fi
 - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
 deploy:
