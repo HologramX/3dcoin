@@ -64,9 +64,6 @@ script:
   - if [ "$RUN_TESTS" = "true" -a "$WINE" != "true" ]; then make $MAKEJOBS check VERBOSE=1; fi
   - if [ "$RUN_TESTS" = "true" -a "$WINE" = "true" ]; then wine src/test/test_3dcoin.exe; fi
   - if [ "$RUN_TESTS" = "true" ]; then qa/pull-tester/rpc-tests.py --coverage; fi
-after_script:
-  - echo $TRAVIS_COMMIT_RANGE
-  - echo $TRAVIS_COMMIT_LOG
 before_deploy:
   - if [ "$HOST" == "x86_64-apple-darwin14" ]; then mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; FILE=3DCoin-Core-$TAG-macosx-generic.dmg; else HERE=$(pwd); cd $OUTDIR; zip -r $HERE/3dcoin-$TAG-$HOST.zip bin/; cd $HERE; FILE="3dcoin-$TAG-$HOST.zip"; fi
   - git tag "$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)"
