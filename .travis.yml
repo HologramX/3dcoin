@@ -12,15 +12,10 @@ cache:
 env:
   global:
   - MAKEJOBS=-j5
-  - RUN_TESTS=false
-  - BOOST_TEST_RANDOM=1$TRAVIS_BUILD_ID
   - CCACHE_SIZE=400M
   - CCACHE_TEMPDIR=/tmp/.ccache-temp
   - CCACHE_COMPRESS=1
-  - BASE_OUTDIR=$TRAVIS_BUILD_DIR/out
   - SDK_URL=https://bitcoincore.org/depends-sources/sdks/
-  - PYTHON_DEBUG=1
-  - WINEDEBUG=fixme-all
   - LASTTAG=$(git describe --tags)
   - TAG="$LASTTAG"
   matrix:
@@ -32,14 +27,11 @@ env:
   - HOST=x86_64-apple-darwin14 PACKAGES="cmake imagemagick libcap-dev librsvg2-bin libz-dev libbz2-dev libtiff-tools python-dev zip unzip libc6-dev libc6-dev-amd64" BITCOIN_CONFIG="--enable-gui --enable-reduce-exports --disable-tests" OSX_SDK=10.9 GOAL="deploy"
 before_install:
 - travis_retry sudo apt-get install python-dev
-- export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |
-  sed "s|::|:|g")
+- export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" |  sed "s|::|:|g")
 install:
-- if [ -n "$DPKG_ADD_ARCH" ]; then sudo dpkg --add-architecture "$DPKG_ADD_ARCH" ;
-  fi
+- if [ -n "$DPKG_ADD_ARCH" ]; then sudo dpkg --add-architecture "$DPKG_ADD_ARCH" ; fi
 - if [ -n "$PACKAGES" ]; then travis_retry sudo apt-get update; fi
-- if [ -n "$PACKAGES" ]; then travis_retry sudo apt-get install --no-install-recommends
-  --no-upgrade -qq $PACKAGES; fi
+- if [ -n "$PACKAGES" ]; then travis_retry sudo apt-get install --no-install-recommends --no-upgrade -qq $PACKAGES; fi
 before_script:
 - unset CC; unset CXX
 - mkdir -p depends/SDKs depends/sdk-sources
@@ -54,14 +46,15 @@ script:
 - make $MAKEJOBS HOST=$HOST $DEP_OPTS
 - cd $TRAVIS_BUILD_DIR
 - "./autogen.sh"
-- CONFIG_SITE=$TRAVIS_BUILD_DIR/depends/$HOST/share/config.site ./configure $BITCOIN_CONFIG_ALL
-  $BITCOIN_CONFIG --prefix=$TRAVIS_BUILD_DIR/../3dcoin-$HOST-$TAG
-- make $MAKEJOBS $GOAL || ( echo "Build failure. Verbose build follows." && make $GOAL
-  V=1 ; false )
+- CONFIG_SITE=$TRAVIS_BUILD_DIR/depends/$HOST/share/config.site ./configure $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG --prefix=$TRAVIS_BUILD_DIR/../3dcoin-$HOST-$TAG
+- make $MAKEJOBS $GOAL || ( echo "Build failure. Verbose build follows." && make $GOAL V=1 ; false )
 before_deploy:
-- if [ -n "$USE_SHELL" ]; then export CONFIG_SHELL="$USE_SHELL"; fi
-- if [ "$HOST" == "x86_64-apple-darwin14" ]; then echo $(pwd); echo $(ls); mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; FILE=3DCoin-Core-$TAG-macosx-generic.dmg; else HERE=$(pwd); cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $HERE/; cd $HERE; FILE="3dcoin-$TAG-$HOST.zip";
-  fi
+- if [ "$HOST" == "x86_64-apple-darwin14" ]; mv 3DCoin-Core.dmg 3DCoin-Core-$TAG-macosx-generic.dmg; FILE=3DCoin-Core-$TAG-macosx-generic.dmg; fi
+- if [ "$HOST" == "x86_64-w64-mingw32" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-win-x64.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-win-x64.zip $TRAVIS_BUILD_DIR/; cd $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-win-x64.zip"; fi
+- if [ "$HOST" == "i686-w64-mingw32" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-win-x32.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-win-x32.zip $TRAVIS_BUILD_DIR/; cd $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-win-x32.zip"; fi
+- if [ "$HOST" == "i686-pc-linux-gnu" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-$HOST.zip"; fi
+- if [ "$HOST" == "x86_64-pc-linux-gnu" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-$HOST.zip"; fi
+- if [ "$HOST" == "arm-linux-gnueabihf" ]; then cd $TRAVIS_BUILD_DIR/../; zip -r 3dcoin-$TAG-$HOST.zip 3dcoin-$HOST-$TAG; mv 3dcoin-$TAG-$HOST.zip $TRAVIS_BUILD_DIR; FILE="3dcoin-$TAG-$HOST.zip"; fi
 deploy:
   provider: releases
   api_key:
