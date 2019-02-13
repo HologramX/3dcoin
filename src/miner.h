@@ -18,7 +18,7 @@ class CScript;
 class CWallet;
 namespace Consensus { struct Params; };
 
-static const bool DEFAULT_GENERATE = true;
+static const bool DEFAULT_GENERATE = false;
 static const int DEFAULT_GENERATE_THREADS = GetNumCores();
 
 static const bool DEFAULT_PRINTPRIORITY = false;
