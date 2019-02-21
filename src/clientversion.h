@@ -17,7 +17,7 @@
 #define CLIENT_VERSION_MAJOR 0
 #define CLIENT_VERSION_MINOR 14
 #define CLIENT_VERSION_REVISION 3
-#define CLIENT_VERSION_BUILD 3
+#define CLIENT_VERSION_BUILD 4
 
 //! Set to true for release, false for prerelease or test build
 #define CLIENT_VERSION_IS_RELEASE true
@@ -38,7 +38,7 @@
 #define DO_STRINGIZE(X) #X
 
 //! Copyright string used in Windows .rc files
-#define COPYRIGHT_STR "2009-" STRINGIZE(COPYRIGHT_YEAR) " The Bitcoin Core Developers, 2018-" STRINGIZE(COPYRIGHT_YEAR) " The 3DCoin Core Developers"
+#define COPYRIGHT_STR "2009-" STRINGIZE(COPYRIGHT_YEAR) " The Bitcoin Core Developers, 2019-" STRINGIZE(COPYRIGHT_YEAR) " The 3DCoin Core Developers"
 
 /**
  * 3dcoind-res.rc includes this file, but it cannot cope with real c++ code.

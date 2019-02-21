@@ -287,7 +287,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int nBlockH
     // split reward between miner ...
     txNew.vout[0].nValue -= masternodePayment;
 
-    if (nBlockHeight >= 450000) txNew.vout.pop_back();
+    if (nBlockHeight >= 475000) txNew.vout.pop_back();
     // add masternode vout
     txoutMasternodeRet = CTxOut(masternodePayment, payee);
     txNew.vout.push_back(txoutMasternodeRet);

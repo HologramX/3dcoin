@@ -73,8 +73,8 @@ public:
     CMainParams() {
         strNetworkID = "main";
         //3DCoin V0.14
-        consensus.nV014v1Start = 450000;
-        consensus.nV014v2Start = 517000;
+        consensus.nV014v1Start = 475000;
+        consensus.nV014v2Start = 525000;
         consensus.nPrimenodePaymentsStartBlock = 600000; 
         consensus.nPulsenodePaymentsStartBlock = 750000;
         //3DCoin V0.14  
@@ -196,15 +196,15 @@ public:
     CTestNetParams() {
         strNetworkID = "test";
         //3DCoin V0.14
-        consensus.nV014v1Start = 53000;
+        consensus.nV014v1Start = 20000;
         consensus.nV014v2Start = 517000;
         consensus.nPrimenodePaymentsStartBlock = 600000; 
         consensus.nPulsenodePaymentsStartBlock = 750000;
         //3DCoin V0.14 
-        consensus.nSubsidyHalvingInterval = 210240; 
-        consensus.nMasternodePaymentsStartBlock = 10000; 
-        consensus.nMasternodePaymentsIncreaseBlock = 2000;
-        consensus.nMasternodePaymentsIncreasePeriod = 576;
+        consensus.nSubsidyHalvingInterval = 60000; 
+        consensus.nMasternodePaymentsStartBlock = 500; 
+        consensus.nMasternodePaymentsIncreaseBlock = 1000;
+        consensus.nMasternodePaymentsIncreasePeriod = 300;
         consensus.nInstantSendKeepLock = 6;
         consensus.nBudgetPaymentsStartBlock = 10000000;
         consensus.nBudgetPaymentsCycleBlocks = 50;
@@ -252,14 +252,14 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x000007c41652b32383518b0a5b6722c5a693c730c4be7f1abcb0f70e286a3edd"));
         assert(genesis.hashMerkleRoot == uint256S("0x01cece0a7bcfdc2b9341c9ebf9f96b9f9746c57d2be182ebeada84ff21d855a8"));
 
-         vFixedSeeds.clear();
-        vSeeds.clear();
-        //vSeeds.push_back(CDNSSeedData("testseed1", "testseed1.3dcstats.net"));
-        //vSeeds.push_back(CDNSSeedData("testseed2", "testseed2.3dctalk.net"));
-        // vSeeds.push_back(CDNSSeedData("3dcoin2", "testseed2.3dcoin.io"));
-        // vSeeds.push_back(CDNSSeedData("Districts2", "testseed2.districts.io"));
+        
+        
+        vSeeds.push_back(CDNSSeedData("testseed1", "testseed1.3dcstats.net"));
+        vSeeds.push_back(CDNSSeedData("testseed2", "testseed2.3dctalk.net"));
+        vSeeds.push_back(CDNSSeedData("3dcstats1", "testseed1.3dcstats.info"));
+        vSeeds.push_back(CDNSSeedData("3dcstats2", "testseed2.3dcstats.info"));
 
-      // Testnet 3DCoin addresses start with 'T'
+        // Testnet 3DCoin addresses start with 'T'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 66);
         // Testnet 3DCoin script addresses start with 't'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 128);
@@ -286,9 +286,10 @@ public:
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
             (   0, uint256S("0x000007c41652b32383518b0a5b6722c5a693c730c4be7f1abcb0f70e286a3edd"))
-            (52999, uint256S("0x00000527b9f359404654f15147d7840d4fad0837379e19adc0ec03a7298d2473")),
-            1549325728, // * UNIX timestamp of last checkpoint block
-            53042,     // * total number of transactions between genesis and last checkpoint
+            (   10, uint256S("0x00000d46cc865072dc7414c75c91f8a1bb6a98da005ee84b66f64c0beeecc600"))
+            (   9461, uint256S("0x0000008900c29b73de7e4c73fb5e8c41289a090682f116175b517eb900ea03c0")),
+            1550592310, // * UNIX timestamp of last checkpoint block
+            9469,     // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             0         // * estimated number of transactions per day after checkpoint
         };

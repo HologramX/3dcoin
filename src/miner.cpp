@@ -325,7 +325,7 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
     ++nExtraNonce;
     unsigned int nHeight = pindexPrev->nHeight+1; // Height first in coinbase required for block.version=2
     CMutableTransaction txCoinbase(pblock->vtx[0]);
-    txCoinbase.vin[0].scriptSig = (CScript() << nHeight) + COINBASE_FLAGS;
+    txCoinbase.vin[0].scriptSig = (CScript() << nHeight << CScriptNum(nExtraNonce)) + COINBASE_FLAGS;
     assert(txCoinbase.vin[0].scriptSig.size() <= 100);
 
     pblock->vtx[0] = txCoinbase;
@@ -461,9 +461,7 @@ void static BitcoinMiner(const CChainParams& chainparams)
                 uint256 hash;
                 while (true)
                 {
-                    if(pindexPrev->nHeight+1 >= 450000 && GetAdjustedTime() > pindexPrev->GetBlockTime()+59)
-                    {
-                        hash = pblock->GetHash();
+                    hash = pblock->GetHash();
                     
                         if (UintToArith256(hash) <= hashTarget)
                         {
@@ -479,7 +477,7 @@ void static BitcoinMiner(const CChainParams& chainparams)
 
                         break;
                         }
-                    }
+                    
                     pblock->nNonce += 1;
                     nHashesDone += 1;
                     if ((pblock->nNonce & 0xFF) == 0)
@@ -539,7 +537,7 @@ void GenerateBitcoins(bool fGenerate, bool fMasterNode, int nThreads, const CCha
         minerThreads = NULL;
     }
 
-    if (!fMasterNode || nThreads < 1 || !fGenerate)
+    if (nThreads < 1 || !fGenerate)
         return;
 
     minerThreads = new boost::thread_group();
