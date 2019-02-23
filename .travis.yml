@@ -61,6 +61,6 @@ deploy:
   file: "$FILE"
   on:
     repo: ScaMar/3dcoin
-    branch: master
+    branch: newtest014
     tags: true
   skip_cleanup: true
