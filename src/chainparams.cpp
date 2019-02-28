@@ -223,7 +223,7 @@ public:
         consensus.powLimit = uint256S("00000fffff000000000000000000000000000000000000000000000000000000");
         consensus.nPowTargetTimespan = 24 * 60 * 60; // 24 hours
         consensus.nPowTargetSpacing =  30; // 60 seconds
-        consensus.fPowAllowMinDifficultyBlocks = true;
+        consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nRuleChangeActivationThreshold = 1512; // 75% for testchains
         consensus.nMinerConfirmationWindow = 1440; // nPowTargetTimespan / nPowTargetSpacing
@@ -283,11 +283,14 @@ public:
         nPoolMaxTransactions = 3;
         nFulfilledRequestExpireTime = 5*60; // fulfilled requests expire in 5 minutes
 
+        strSporkPubKey = "03873e2131f07ce644cabcee3b3d4f5e22364a3f4d080c206eb58e2158c93d5f6c";
+
         checkpointData = (CCheckpointData) {
             boost::assign::map_list_of
-            (   0, uint256S("0x000007c41652b32383518b0a5b6722c5a693c730c4be7f1abcb0f70e286a3edd")),
-            0, // * UNIX timestamp of last checkpoint block
-            0,     // * total number of transactions between genesis and last checkpoint
+            (   0, uint256S("0x000007c41652b32383518b0a5b6722c5a693c730c4be7f1abcb0f70e286a3edd"))
+            (   19437, uint256S("0x000000008e3bcaf43bcb752c2aa2b96453ed715087f40d9c4c481837d36dc38f")),
+            1551338294, // * UNIX timestamp of last checkpoint block
+            7217,     // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             0         // * estimated number of transactions per day after checkpoint
         };
