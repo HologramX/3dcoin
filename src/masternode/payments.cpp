@@ -11,6 +11,7 @@
 #include "netfulfilledman.h"
 #include "spork.h"
 #include "util.h"
+#include "wallet/wallet.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -21,6 +22,7 @@ CCriticalSection cs_vecPayees;
 CCriticalSection cs_mapMasternodeBlocks;
 CCriticalSection cs_mapMasternodePaymentVotes;
 
+ extern CWallet* pwalletMain;
 /**
 * IsBlockValueValid
 *
@@ -224,6 +226,69 @@ void FillBlockPayments(CMutableTransaction& txNew, int nBlockHeight, CAmount blo
                             nBlockHeight, blockReward, txoutMasternodeRet.ToString(), txNew.ToString());
 }
 
+bool WinnerIsmine(CMutableTransaction txNew, const CBlockIndex* pindexPrev) {
+
+    CScript payee;
+
+    payee = txNew.vout[1].scriptPubKey;
+
+    CTxDestination address1;
+    ExtractDestination(payee, address1);
+    CBitcoinAddress address2(address1);
+
+    CKeyID keyID;
+    if (!address2.GetKeyID(keyID)){
+        return false;
+    }
+    
+    CKey key;
+    if (pwalletMain->GetKey(keyID, key)){
+        LogPrintf("CMasternodePayments::FillBlockPayee -- Private key available for %s\n", address2.ToString());
+        return true;
+    }
+
+    CMasternode mn;
+        if(mnodeman.Get(activeMasternode.vin, mn)) {
+            //LogPrintf("CMasternodePayments::FillBlockPayee -- Winner is %s\n", address2.ToString());
+            if (CBitcoinAddress(mn.pubKeyCollateralAddress.GetID()) == address2){
+            //LogPrintf("CMasternodePayments::FillBlockPayee -- The Winner is me %s\n", CBitcoinAddress(mn.pubKeyCollateralAddress.GetID()).ToString());
+                return true;
+            }
+        }
+   
+    int nHeight = pindexPrev->nHeight+1;
+
+    if (GetAdjustedTime() > pindexPrev->GetBlockTime()+120) {
+            int Count = std::abs(GetAdjustedTime() - pindexPrev->GetBlockTime())/60;
+
+            mnodeman.UpdateLastPaid();
+            CScript bpayee;
+            if(mnpayments.GetBlockPayee(nHeight-Count, bpayee)){
+                CTxDestination waddress;
+                ExtractDestination(bpayee, waddress);
+                CBitcoinAddress bwaddress(waddress);
+
+                //LogPrintf("CMasternodePayments::FillBlockPayee -- Winner is late, sk = %s new miner is  %s\n", Count, bwaddress.ToString());
+                if (CBitcoinAddress(mn.pubKeyCollateralAddress.GetID()) == bwaddress){
+                    return true;
+
+                }else{
+                    LogPrintf("CMasternodePayments::FillBlockPayee -- New miner is  %s\n", bwaddress.ToString());
+                }
+
+                if (Count > 10) { 
+                    LogPrintf("CMasternodePayments::FillBlockPayee -- last man standing!!  \n");
+                    return true;
+                }
+            }    
+    }
+
+
+
+    return false;
+
+}
+
 std::string GetRequiredPaymentsString(int nBlockHeight)
 {
     // IF WE HAVE A ACTIVATED TRIGGER FOR THIS HEIGHT - IT IS A SUPERBLOCK, GET THE REQUIRED PAYEES
@@ -287,7 +352,6 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int nBlockH
     // split reward between miner ...
     txNew.vout[0].nValue -= masternodePayment;
 
-    if (nBlockHeight >= 475000) txNew.vout.pop_back();
     // add masternode vout
     txoutMasternodeRet = CTxOut(masternodePayment, payee);
     txNew.vout.push_back(txoutMasternodeRet);
@@ -297,6 +361,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int nBlockH
     CBitcoinAddress address2(address1);
 
     LogPrintf("CMasternodePayments::FillBlockPayee -- Masternode payment %lld to %s\n", masternodePayment, address2.ToString());
+
 }
 
 int CMasternodePayments::GetMinMasternodePaymentsProto() {

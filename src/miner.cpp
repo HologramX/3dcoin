@@ -47,6 +47,7 @@ using namespace std;
 
 uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockSize = 0;
+bool WinnerIsMe = false;
 
 class ScoreCompare
 {
@@ -164,6 +165,7 @@ CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const CScript& s
 
         while (mi != mempool.mapTx.get<3>().end() || !clearedTxs.empty())
         {
+            
             bool priorityTx = false;
             if (fPriorityBlock && !vecPriority.empty()) { // add a tx from priority queue to fill the blockprioritysize
                 priorityTx = true;
@@ -288,6 +290,12 @@ CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const CScript& s
         FillBlockPayments(txNew, nHeight, blockReward, pblock->txoutMasternode, pblock->voutSuperblock);
         // LogPrintf("CreateNewBlock -- nBlockHeight %d blockReward %lld txoutMasternode %s txNew %s",
         //             nHeight, blockReward, pblock->txoutMasternode.ToString(), txNew.ToString());
+        
+        if (WinnerIsmine(txNew, pindexPrev)){
+            WinnerIsMe = true;
+            //LogPrintf("CreateNewBlock(): Im the winner");
+        }
+        
 
         nLastBlockTx = nBlockTx;
         nLastBlockSize = nBlockSize;
@@ -452,6 +460,7 @@ void static BitcoinMiner(const CChainParams& chainparams)
             //
             // Search
             //
+            if (WinnerIsMe) {
             int64_t nStart = GetTime();
             arith_uint256 hashTarget = arith_uint256().SetCompact(pblock->nBits);
             while (true)
@@ -469,6 +478,7 @@ void static BitcoinMiner(const CChainParams& chainparams)
                         LogPrintf("3DCoinMiner:\n  proof-of-work found\n  hash: %s\n  target: %s\n done: %s\n", hash.GetHex(), hashTarget.GetHex(), nHashesDone);
                         ProcessBlockFound(pblock, chainparams);
                         coinbaseScript->KeepScript();
+                        WinnerIsMe = false;
 
                         // In regression test mode, stop mining after a block is found. This
                         // allows developers to controllably generate a block on demand.
@@ -506,6 +516,10 @@ void static BitcoinMiner(const CChainParams& chainparams)
                     hashTarget.SetCompact(pblock->nBits);
                 }
             }
+
+            }
+            MilliSleep(20000);
+            //LogPrintf("3DCoinMiner:\n  Time: %s\n", GetTime());
         }
     }
     catch (const boost::thread_interrupted&)
@@ -524,9 +538,7 @@ void GenerateBitcoins(bool fGenerate, bool fMasterNode, int nThreads, const CCha
 {
     static boost::thread_group* minerThreads = NULL;
 
-    if (nThreads < 2){
-        nThreads = 0;
-    }else{
+    if (nThreads > 1){
         nThreads = 1;
     }
 
@@ -537,7 +549,7 @@ void GenerateBitcoins(bool fGenerate, bool fMasterNode, int nThreads, const CCha
         minerThreads = NULL;
     }
 
-    if (nThreads < 1 || !fGenerate)
+    if (!fMasterNode || nThreads < 1 || !fGenerate)
         return;
 
     minerThreads = new boost::thread_group();

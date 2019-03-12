@@ -1773,11 +1773,11 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue)
 
    
                                                                       
-    if(nHeight > nMNPIBlock)        ret += blockValue / 20; // 41812 - 15%
+    if(nHeight > nMNPIBlock)        ret += blockValue / 20;  // 41812 - 15%
     if(nHeight > 45000)             ret += blockValue / 5 ;  // 45000 - 35%
     if(nHeight > 46000)             ret += blockValue / 5 ;  // 46000 - 55%
     if(nHeight > 47000)             ret += blockValue / 5 ;  // 47000 - 75%
-    if(nHeight >= nV014v1)           ret += blockValue / 4 ;  // 475000 - 100%
+    if(nHeight >= nV014v1)          ret = blockValue;        // 475000 - 100%
 
     return ret;
 
@@ -3942,9 +3942,9 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
 
         if (!ContextualCheckBlockHeader(block, state, pindexPrev))
             return false;
-        if (pindexPrev->nHeight+1 >= Params().GetConsensus().nV014v1Start)
+        /*if (pindexPrev->nHeight+1 >= Params().GetConsensus().nV014v1Start)
             if (!CheckV014BlockHeader(chainparams, block, pindexPrev, state))
-                return false;
+                return false;*/
     }
     if (pindex == NULL)
         pindex = AddToBlockIndex(block);
@@ -3987,7 +3987,7 @@ static bool AcceptBlock(const CBlock& block, CValidationState& state, const CCha
         if (fTooFarAhead) return true;      // Block height is too high
     }
 
-    if (pindex->nHeight+1 >= Params().GetConsensus().nV014v1Start)
+    if (pindex->nHeight >= Params().GetConsensus().nV014v1Start+50)
         if (!CheckV014Block(chainparams, block, state))
             return false;
             //LogPrintf("%s: V014Activated-AcceptBlock\n", __func__);
@@ -4080,7 +4080,7 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
     indexDummy.pprev = pindexPrev;
     indexDummy.nHeight = pindexPrev->nHeight + 1;
 
-    if (pindexPrev->nHeight+1 >= Params().GetConsensus().nV014v1Start)
+    if (pindexPrev->nHeight >= Params().GetConsensus().nV014v1Start+50)
         if (!CheckV014Block(chainparams, block, state))
             return false;
             //LogPrintf("%s: V014Activated", __func__);
