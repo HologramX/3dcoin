@@ -209,16 +209,16 @@ bool IsBlockPayeeValid(const CTransaction& txNew, int nBlockHeight, CAmount bloc
     return true;
 }
 
-void FillBlockPayments(CMutableTransaction& txNew, int nBlockHeight, CAmount blockReward, CTxOut& txoutMasternodeRet, std::vector<CTxOut>& voutSuperblockRet)
+void FillBlockPayments(CMutableTransaction& txNew, int nBlockHeight, CAmount blockReward, CTxOut& txoutMasternodeRet)
 {
-    // only create superblocks if spork is enabled AND if superblock is actually triggered
+    /*// only create superblocks if spork is enabled AND if superblock is actually triggered
     // (height should be validated inside)
     if(sporkManager.IsSporkActive(SPORK_9_SUPERBLOCKS_ENABLED) &&
         CSuperblockManager::IsSuperblockTriggered(nBlockHeight)) {
             LogPrint("gobject", "FillBlockPayments -- triggered superblock creation at height %d\n", nBlockHeight);
             CSuperblockManager::CreateSuperblock(txNew, nBlockHeight, voutSuperblockRet);
             return;
-    }
+    }*/
 
     // FILL BLOCK PAYEE WITH MASTERNODE PAYMENT OTHERWISE
     mnpayments.FillBlockPayee(txNew, nBlockHeight, blockReward, txoutMasternodeRet);
@@ -288,6 +288,39 @@ bool WinnerIsmine(CMutableTransaction txNew, const CBlockIndex* pindexPrev) {
     return false;
 
 }
+
+bool SignBlock(int nHeight, CBlockv2* pblockv2) {
+
+
+    std::string Message = std::to_string(nHeight);
+    std::vector<unsigned char> vchSig;
+
+    if(!CMessageSigner::SignMessage(Message, vchSig, activeMasternode.keyMasternode)) {
+        LogPrintf("CMasternodePaymentSignBlock::Sign -- SignMessage() failed\n");
+        return false;
+        
+    }
+    //add MinerSig to the block
+    pblockv2->minerSig = vchSig;
+
+    LogPrintf("CMasternodePaymentSignBlock::Sign -- SignMessage() success %c\n", vchSig[0]);
+    return true;
+}
+
+bool IsBlockSigValid(CBlockv2* pblockv2, int nHeight){
+
+    //Check if BlockSig is valid and match the masternode pubkey
+    std::string strError;
+    std::string Message = std::to_string(nHeight);
+    if(!CMessageSigner::VerifyMessage(pblockv2->minerPubKey, pblockv2->minerSig, Message, strError)) {
+        LogPrintf("CMasternodePaymentIsBlockSigValid::Sign -- VerifyMessage() failed, error: %s\n", strError);
+        return false;
+    }
+    
+
+    return true;
+}
+
 
 std::string GetRequiredPaymentsString(int nBlockHeight)
 {

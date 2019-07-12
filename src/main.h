@@ -206,6 +206,7 @@ void UnregisterNodeSignals(CNodeSignals& nodeSignals);
  * @return True if state.IsValid()
  */
 bool ProcessNewBlock(CValidationState& state, const CChainParams& chainparams, const CNode* pfrom, const CBlock* pblock, bool fForceProcessing, const CDiskBlockPos* dbp);
+bool ProcessNewBlockv2(CValidationState& state, const CChainParams& chainparams, const CNode* pfrom, const CBlockv2* pblockv2, bool fForceProcessing, const CDiskBlockPos* dbp);
 /** Check whether enough disk space is available for an incoming block */
 bool CheckDiskSpace(uint64_t nAdditionalBytes = 0);
 /** Open a block file (blk?????.dat) */
@@ -752,7 +753,7 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
 /** Check a block is completely valid from start to finish (only works on top of our current best block, with cs_main held) */
 bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
-
+bool TestBlockv2Validity(CValidationState& state, const CChainParams& chainparams, const CBlockv2& blockv2, CBlockIndex* pindexPrev, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
 
 class CBlockFileInfo
 {

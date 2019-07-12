@@ -638,15 +638,15 @@ boost::filesystem::path static StartupShortcutPath()
 {
     std::string chain = ChainNameFromCommandLine();
     if (chain == CBaseChainParams::MAIN)
-        return GetSpecialFolderPath(CSIDL_STARTUP) / "3DCoin.lnk";
+        return GetSpecialFolderPath(CSIDL_STARTUP) / "3DCoin Core.lnk";
     if (chain == CBaseChainParams::TESTNET) // Remove this special case when CBaseChainParams::TESTNET = "testnet4"
-        return GetSpecialFolderPath(CSIDL_STARTUP) / "3DCoin (testnet).lnk";
-    return GetSpecialFolderPath(CSIDL_STARTUP) / strprintf("3DCoin (%s).lnk", chain);
+        return GetSpecialFolderPath(CSIDL_STARTUP) / "3DCoin Core (testnet).lnk";
+    return GetSpecialFolderPath(CSIDL_STARTUP) / strprintf("3DCoin Core (%s).lnk", chain);
 }
 
 bool GetStartOnSystemStartup()
 {
-    // check for 3DCoin*.lnk
+    // check for "3DCoin Core*".lnk
     return boost::filesystem::exists(StartupShortcutPath());
 }
 
@@ -738,8 +738,8 @@ boost::filesystem::path static GetAutostartFilePath()
 {
     std::string chain = ChainNameFromCommandLine();
     if (chain == CBaseChainParams::MAIN)
-        return GetAutostartDir() / "3dcoin.desktop";
-    return GetAutostartDir() / strprintf("3dcoin-%s.lnk", chain);
+        return GetAutostartDir() / "3dcoincore.desktop";
+    return GetAutostartDir() / strprintf("3dcoincore-%s.lnk", chain);
 }
 
 bool GetStartOnSystemStartup()
@@ -778,13 +778,13 @@ bool SetStartOnSystemStartup(bool fAutoStart)
         if (!optionFile.good())
             return false;
         std::string chain = ChainNameFromCommandLine();
-        // Write a 3dcoin.desktop file to the autostart directory:
+        // Write a 3dcoincore.desktop file to the autostart directory:
         optionFile << "[Desktop Entry]\n";
         optionFile << "Type=Application\n";
         if (chain == CBaseChainParams::MAIN)
-            optionFile << "Name=3DCoin\n";
+            optionFile << "Name=3DCoin Core\n";
         else
-            optionFile << strprintf("Name=Bitcoin (%s)\n", chain);
+            optionFile << strprintf("Name=3DCoin Core (%s)\n", chain);
         optionFile << "Exec=" << pszExePath << strprintf(" -min -testnet=%d -regtest=%d\n", GetBoolArg("-testnet", false), GetBoolArg("-regtest", false));
         optionFile << "Terminal=false\n";
         optionFile << "Hidden=false\n";

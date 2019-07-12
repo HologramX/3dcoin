@@ -74,9 +74,10 @@ public:
         strNetworkID = "main";
         //3DCoin V0.14
         consensus.nV014v1Start = 475000;
-        consensus.nV014v2Start = 525000;
-        consensus.nPrimenodePaymentsStartBlock = 600000; 
-        consensus.nPulsenodePaymentsStartBlock = 750000;
+        consensus.nV014v2Start = 575000;
+        consensus.nV014v3Start = 800000;
+        consensus.nPrimenodePaymentsStartBlock = 820000; 
+        consensus.nPulsenodePaymentsStartBlock = 850000;
         //3DCoin V0.14  
         consensus.nSubsidyHalvingInterval = 501750; // Note: actual number of blocks per calendar year with DGW v3 is 501750
         consensus.nMasternodePaymentsStartBlock = 500; // unused 
@@ -181,9 +182,10 @@ public:
             (  170690, uint256S("0x0000000000115dd61216bb43ab76eb4921ffc33e47fd57e4c108c49371e5bd86"))
             (  409223, uint256S("0x000000000000033ac12f288d05943b22aa223de94b90c1c41594df08781d7528"))
             (  423781, uint256S("0x0000000000007a5f6302854a8f9a559ce640e82d503064ffe1316b076195ae6e"))
-            (  471285, uint256S("0x00000000000c1e56df5f188d8776c5f268d218ae779eeabbe991eed0b9d58d38")),
-            1552344149, // * UNIX timestamp of last checkpoint block
-            296694,    // * total number of transactions between genesis and last checkpoint
+            (  471285, uint256S("0x00000000000c1e56df5f188d8776c5f268d218ae779eeabbe991eed0b9d58d38"))
+            (  471285, uint256S("0x000000007048de8db28b27814fb768220be37a32f8f6839f9de88114fddfa281")),
+            1562828734, // * UNIX timestamp of last checkpoint block
+            441125,    // * total number of transactions between genesis and last checkpoint
                         //   (the tx=... number in the SetBestChain debug.log lines)
             0        // * estimated number of transactions per day after checkpoint
         };

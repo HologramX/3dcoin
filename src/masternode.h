@@ -21,6 +21,7 @@ static const int MASTERNODE_MIN_MNP_SECONDS             =  10 * 60;
 static const int MASTERNODE_EXPIRATION_SECONDS          =  65 * 60;
 static const int MASTERNODE_WATCHDOG_MAX_SECONDS        = 120 * 60;
 static const int MASTERNODE_NEW_START_REQUIRED_SECONDS  = 180 * 60;
+static const int MASTERNODE_MULTI_IP_COUNT              =   2;
 
 static const int MASTERNODE_POSE_BAN_MAX_SCORE          = 5;
 //
@@ -152,6 +153,7 @@ public:
         MASTERNODE_UPDATE_REQUIRED,
         MASTERNODE_WATCHDOG_EXPIRED,
         MASTERNODE_NEW_START_REQUIRED,
+        MASTERNODE_MULTI_IP_DETECTED,
         MASTERNODE_POSE_BAN
     };
 
@@ -277,6 +279,7 @@ public:
     bool IsUpdateRequired() { return nActiveState == MASTERNODE_UPDATE_REQUIRED; }
     bool IsWatchdogExpired() { return nActiveState == MASTERNODE_WATCHDOG_EXPIRED; }
     bool IsNewStartRequired() { return nActiveState == MASTERNODE_NEW_START_REQUIRED; }
+    bool IsMultiIp() { return nActiveState == MASTERNODE_MULTI_IP_DETECTED; }
 
     static bool IsValidStateForAutoStart(int nActiveStateIn)
     {
@@ -304,6 +307,10 @@ public:
 
     bool IsValidNetAddr();
     static bool IsValidNetAddr(CService addrIn);
+
+    //Add multi-ip masternode
+
+    void AddMultiIpState() {nActiveState = MASTERNODE_MULTI_IP_DETECTED;}
 
     void IncreasePoSeBanScore() { if(nPoSeBanScore < MASTERNODE_POSE_BAN_MAX_SCORE) nPoSeBanScore++; }
     void DecreasePoSeBanScore() { if(nPoSeBanScore > -MASTERNODE_POSE_BAN_MAX_SCORE) nPoSeBanScore--; }

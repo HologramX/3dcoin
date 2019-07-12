@@ -41,6 +41,7 @@ struct Params {
     //3DCoin V0.14
     int nV014v1Start;
     int nV014v2Start;
+    int nV014v3Start;
     int nPrimenodePaymentsStartBlock;
     int nPulsenodePaymentsStartBlock;
     //3DCoin V0.14  

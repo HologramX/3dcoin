@@ -10,6 +10,7 @@
 
 #include "primitives/transaction.h"
 #include "primitives/block.h"
+#include "v014/blocks.h"
 #include "uint256.h"
 
 uint256 ComputeMerkleRoot(const std::vector<uint256>& leaves, bool* mutated = NULL);
@@ -21,6 +22,7 @@ uint256 ComputeMerkleRootFromBranch(const uint256& leaf, const std::vector<uint2
  * *mutated is set to true if a duplicated subtree was found.
  */
 uint256 BlockMerkleRoot(const CBlock& block, bool* mutated = NULL);
+uint256 BlockTxRoot(const CBlockv2& blockv2, bool* mutated = NULL);
 
 /*
  * Compute the Merkle branch for the tree of transactions in a block, for a

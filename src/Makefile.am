@@ -130,6 +130,7 @@ BITCOIN_CORE_H = \
   merkleblock.h \
   messagesigner.h \
   miner.h \
+  v014/miner.h \
   net.h \
   netbase.h \
   netfulfilledman.h \
@@ -138,6 +139,7 @@ BITCOIN_CORE_H = \
   policy/policy.h \
   policy/rbf.h \
   pow.h \
+  v014/pos.h \
   prevector.h \
   primitives/block.h \
   primitives/transaction.h \
@@ -218,12 +220,14 @@ libbitcoin_server_a_SOURCES = \
   merkleblock.cpp \
   messagesigner.cpp \
   miner.cpp \
+  v014/miner.cpp \
   net.cpp \
   netfulfilledman.cpp \
   noui.cpp \
   policy/fees.cpp \
   policy/policy.cpp \
   pow.cpp \
+  v014/pos.cpp \
   rest.cpp \
   rpc/blockchain.cpp \
   rpc/masternode.cpp \

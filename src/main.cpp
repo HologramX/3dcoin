@@ -21,7 +21,9 @@
 #include "net.h"
 #include "policy/policy.h"
 #include "pow.h"
+#include "v014/pos.h"
 #include "primitives/block.h"
+#include "v014/blocks.h"
 #include "primitives/transaction.h"
 #include "script/script.h"
 #include "script/sigcache.h"
@@ -4068,6 +4070,36 @@ bool ProcessNewBlock(CValidationState& state, const CChainParams& chainparams, c
     return true;
 }
 
+bool ProcessNewBlockv2(CValidationState& state, const CChainParams& chainparams, const CNode* pfrom, const CBlockv2* pblockv2, bool fForceProcessing, const CDiskBlockPos* dbp)
+{
+    
+    /*{
+        LOCK(cs_main);
+        bool fRequested = MarkBlockAsReceived(pblockv2->GetHash());
+        fRequested |= fForceProcessing;
+        
+        // Store to disk
+        CBlockIndex *pindex = NULL;
+        bool ret = AcceptBlock(*pblockv2, state, chainparams, &pindex, fRequested, dbp);
+        if (pindex && pfrom) {
+            mapBlockSource[pindex->GetBlockHash()] = pfrom->GetId();
+        }
+        CheckBlockIndex(chainparams.GetConsensus());
+        if (!ret)
+            return error("%s: AcceptBlock FAILED", __func__);
+    }
+
+    NotifyHeaderTip();
+
+    if (!ActivateBestChain(state, chainparams, pblockv2))
+        return error("%s: ActivateBestChain failed", __func__);
+
+    masternodeSync.IsBlockchainSynced(true);
+
+    LogPrintf("%s : ACCEPTED\n", __func__);*/
+    return true;
+}
+
 bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot)
 {
     AssertLockHeld(cs_main);
@@ -4095,6 +4127,37 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
     if (!ConnectBlock(block, state, &indexDummy, viewNew, true))
         return false;
     assert(state.IsValid());
+
+    return true;
+}
+
+bool TestBlockv2Validity(CValidationState& state, const CChainParams& chainparams, const CBlockv2& blockv2, CBlockIndex* pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot)
+{
+    /*AssertLockHeld(cs_main);
+    assert(pindexPrev && pindexPrev == chainActive.Tip());
+    if (fCheckpointsEnabled && !CheckIndexAgainstCheckpoint(pindexPrev, state, chainparams, blocks.GetHash()))
+        return error("%s: CheckIndexAgainstCheckpoint(): %s", __func__, state.GetRejectReason().c_str());
+
+    CCoinsViewCache viewNew(pcoinsTip);
+    CBlockIndex indexDummy(block);
+    indexDummy.pprev = pindexPrev;
+    indexDummy.nHeight = pindexPrev->nHeight + 1;
+
+    if (pindexPrev->nHeight >= Params().GetConsensus().nV014v1Start+50)
+        if (!CheckV014Block(chainparams, blocks, state))
+            return false;
+            //LogPrintf("%s: V014Activated", __func__);
+
+        // NOTE: CheckBlockHeader is called by CheckBlock
+    if (!ContextualCheckBlockHeader(blocks, state, pindexPrev))
+        return false;
+    if (!CheckBlock(blocks, state, fCheckPOW, fCheckMerkleRoot))
+        return false;
+    if (!ContextualCheckBlock(blocks, state, pindexPrev))
+        return false;
+    if (!ConnectBlock(blocks, state, &indexDummy, viewNew, true))
+        return false;
+    assert(state.IsValid());*/
 
     return true;
 }

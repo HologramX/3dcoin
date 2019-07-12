@@ -8,7 +8,9 @@
 
 #include "arith_uint256.h"
 #include "primitives/block.h"
+#include "v014/blocks.h"
 #include "pow.h"
+#include "v014/pos.h"
 #include "tinyformat.h"
 #include "uint256.h"
 

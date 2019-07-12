@@ -365,6 +365,7 @@ std::string CMasternode::StateToString(int nStateIn)
         case MASTERNODE_UPDATE_REQUIRED:        return "UPDATE_REQUIRED";
         case MASTERNODE_WATCHDOG_EXPIRED:       return "WATCHDOG_EXPIRED";
         case MASTERNODE_NEW_START_REQUIRED:     return "NEW_START_REQUIRED";
+        case MASTERNODE_MULTI_IP_DETECTED:      return "MULTI_IP_DETECTED";
         case MASTERNODE_POSE_BAN:               return "POSE_BAN";
         default:                                return "UNKNOWN";
     }
@@ -903,8 +904,10 @@ bool CMasternodePing::CheckAndUpdate(CMasternode* pmn, bool fFromNewBroadcast, i
         mnodeman.mapSeenMasternodeBroadcast[hash].second.lastPing = *this;
     }
 
-    pmn->Check(true); // force update, ignoring cache
-    if (!pmn->IsEnabled()) return false;
+    // force update, ignoring cache
+    pmn->Check(true);
+    // relay ping for nodes in ENABLED/EXPIRED state only, skip everyone else
+    if (!pmn->IsEnabled() && !pmn->IsExpired()) return false;
 
     LogPrint("masternode", "CMasternodePing::CheckAndUpdate -- Masternode ping acceepted and relayed, masternode=%s\n", vin.prevout.ToStringShort());
     Relay();

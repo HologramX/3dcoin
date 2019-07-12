@@ -11,22 +11,24 @@
 #include "utilstrencodings.h"
 #include "crypto/common.h"
 
-uint256 CBlocksHeader::GetHash() const
+uint256 CBlockv2Header::GetHash() const
 {
-    return HashKeccak(BEGIN(nVersion), END(nTime));
+    return HashKeccak(BEGIN(nVersion), END(nNonce));
 }
 
-std::string CBlocks::ToString() const
+std::string CBlockv2::ToString() const
 {
     std::stringstream s;
-    s << strprintf("CBlockv014(hash=%s, ver=%d, hashPrevBlock=%s, hashTxRoot=%s,hashObjRoot=%s, hashDpsRoot=%s, nTime=%u, nBits=%08x, vtx=%u, vobj=%u, vdps=%u)\n",
+    s << strprintf("CBlockv014(hash=%s, ver=%d, hashPrevBlock=%s, hashTxRoot=%s,hashObjRoot=%s, hashDpsRoot=%s, minerPubKey=%s, minerSig=%u nTime=%u, nBits=%08x, vtx=%u, vobj=%u, vdps=%u)\n",
         GetHash().ToString(),
         nVersion,
         hashPrevBlock.ToString(),
         hashTxRoot.ToString(),
         hashObjRoot.ToString(),
         hashDpsRoot.ToString(),
-        nTime, nBits,
+        minerPubKey.GetID().ToString(),
+        minerSig.size(),
+        nTime, nBits, nNonce,
         vtx.size(),
         vobj.size(),
         vdps.size());
