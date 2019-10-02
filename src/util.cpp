@@ -106,8 +106,8 @@ using namespace std;
 bool fMasterNode = false;
 bool fLiteMode = false;
 //3DCoin V0.14
-bool fPrimenode = false;
-bool fPulsenode = false;
+bool fPrimeNode = false;
+bool fPulseNode = false;
 //3DCoin V0.14
 
 /**
