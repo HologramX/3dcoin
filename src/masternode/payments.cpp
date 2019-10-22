@@ -276,8 +276,10 @@ bool WinnerIsmine(CMutableTransaction txNew, const CBlockIndex* pindexPrev) {
                     LogPrintf("CMasternodePayments::FillBlockPayee -- New miner is  %s\n", bwaddress.ToString());
                 }
 
-                if (Count > 7) { 
+                if (Count > 5) { 
                     //TODO add a better way to select a random masternode is case all the winners are offline
+                    if(mn.nBlockLastPaid == nHeight-2500)
+                        return true;
                 }
             }    
     }
