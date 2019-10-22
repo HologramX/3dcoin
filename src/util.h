@@ -46,8 +46,8 @@
 extern bool fMasterNode;
 extern bool fLiteMode;
 //3DCoin V0.14
-extern bool fPrimenode;
-extern bool fPulsenode;
+extern bool fPrimeNode;
+extern bool fPulseNode;
 //3DCoin V0.14
 extern int nWalletBackups;
 
