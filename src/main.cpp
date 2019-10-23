@@ -3828,7 +3828,7 @@ static bool CheckIndexAgainstCheckpoint(const CBlockIndex* pindexPrev, CValidati
         return state.DoS(100, error("%s: forked chain older than last checkpoint (height %d)", __func__, nHeight));
 
     // Don't accept any forks from the main chain who doesn't have last checkpoint
-    if (pindexPrev->nHeight==781522 && pindexPrev->GetBlockHash() != pcheckpoint->GetBlockHash())
+    if (pindexPrev->nHeight==782160 && pindexPrev->GetBlockHash() != pcheckpoint->GetBlockHash())
         return state.DoS(100, error("%s: forked chain doesn't have last checkpoint last checkpoint (height %d)", __func__, nHeight));
 
     return true;
