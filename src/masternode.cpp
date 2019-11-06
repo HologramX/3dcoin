@@ -171,15 +171,38 @@ CMasternode::CollateralStatus CMasternode::CheckCollateral(CTxIn vin, int& nHeig
 {
     AssertLockHeld(cs_main);
 
+    int tip = chainActive.Height();
     CCoins coins;
-    if(!pcoinsTip->GetCoins(vin.prevout.hash, coins) ||
-       (unsigned int)vin.prevout.n>=coins.vout.size() ||
-       coins.vout[vin.prevout.n].IsNull()) {
-        return COLLATERAL_UTXO_NOT_FOUND;
+    int Collateral_Amount = tip > 850000 ? 25000 : 1000;
+    bool fCollateral = true;
+    CTransaction tx;
+    uint256 hash;
+    CScript pa;
+    if(GetTransaction(vin.prevout.hash, tx, Params().GetConsensus(), hash, true)) {
+        
+           pa = tx.vout.scriptPubKey
     }
 
-    if(coins.vout[vin.prevout.n].nValue != 1000 * COIN) {
-        return COLLATERAL_INVALID_AMOUNT;
+
+
+    CMasternode mn;
+    mnodeman.Get(vin, mn);
+
+    if (mn.nBlockLastPaid > tip-0)  
+        fCollateral = false;
+    
+    if(fCollateral){
+    
+        if(!pcoinsTip->GetCoins(vin.prevout.hash, coins) ||
+            (unsigned int)vin.prevout.n>=coins.vout.size() ||
+            coins.vout[vin.prevout.n].IsNull()) {
+            return COLLATERAL_UTXO_NOT_FOUND;
+        }    
+        
+
+        if(coins.vout[vin.prevout.n].nValue != Collateral_Amount * COIN) {
+                return COLLATERAL_INVALID_AMOUNT;
+        }
     }
 
     nHeight = coins.nHeight;
@@ -321,6 +344,8 @@ bool CMasternode::IsInputAssociatedWithPubkey()
 
     return false;
 }
+
+//void CMasternode::Check(bool fForce){}
 
 
 bool CMasternode::IsValidNetAddr()
