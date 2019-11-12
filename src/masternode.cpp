@@ -173,23 +173,8 @@ CMasternode::CollateralStatus CMasternode::CheckCollateral(CTxIn vin, int& nHeig
 
     int tip = chainActive.Height();
     CCoins coins;
-    int Collateral_Amount = tip > 850000 ? 25000 : 1000;
+    int Collateral_Amount = tip > Params().GetConsensus().nV014v3Start ? 25000 : 1000;
     bool fCollateral = true;
-    CTransaction tx;
-    uint256 hash;
-    CScript pa;
-    if(GetTransaction(vin.prevout.hash, tx, Params().GetConsensus(), hash, true)) {
-        
-           pa = tx.vout.scriptPubKey
-    }
-
-
-
-    CMasternode mn;
-    mnodeman.Get(vin, mn);
-
-    if (mn.nBlockLastPaid > tip-0)  
-        fCollateral = false;
     
     if(fCollateral){
     

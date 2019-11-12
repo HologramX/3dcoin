@@ -262,6 +262,7 @@ bool WinnerIsmine(CMutableTransaction txNew, const CBlockIndex* pindexPrev) {
     if (GetAdjustedTime() > pindexPrev->GetBlockTime()+nBlockdiffTime) {
             int Count = std::abs(GetAdjustedTime() - pindexPrev->GetBlockTime())/60;
 
+            mnodeman.UpdateLastPaid();
             CScript bpayee;
             if(mnpayments.GetBlockPayee(nHeight+Count, bpayee)){
                 CTxDestination waddress;
@@ -278,7 +279,7 @@ bool WinnerIsmine(CMutableTransaction txNew, const CBlockIndex* pindexPrev) {
 
                 if (Count > 5) { 
                     //TODO add a better way to select a random masternode is case all the winners are offline
-                    if(mn.nBlockLastPaid == (GetAdjustedTime()/nHeight))
+                    if(mn.nBlockLastPaid == nHeight - Params().GetConsensus().nMinerConfirmationWindow/Count)
                         return true;
                 }
             }    
