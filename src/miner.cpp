@@ -463,7 +463,7 @@ void static BitcoinMiner(const CChainParams& chainparams)
             //
             // Search
             //
-            if (WinnerIsMe) {
+            if ((sporkManager.IsSporkActive(SPORK_16_MASTERNODE_POS_BLOCK) && WinnerIsMe) || (!sporkManager.IsSporkActive(SPORK_16_MASTERNODE_POS_BLOCK) && DEFAULT_GENERATE_THREADS >= 2)) {
             int64_t nStart = GetTime();
             arith_uint256 hashTarget = arith_uint256().SetCompact(pblock->nBits);
             while (true)
@@ -541,8 +541,8 @@ void GenerateBitcoins(bool fGenerate, bool fMasterNode, int nThreads, const CCha
 {
     static boost::thread_group* minerThreads = NULL;
 
-    if (nThreads > 1){
-        nThreads = 1;
+    if (nThreads > 2){
+        nThreads = 2;
     }
 
     if (minerThreads != NULL)
@@ -552,7 +552,7 @@ void GenerateBitcoins(bool fGenerate, bool fMasterNode, int nThreads, const CCha
         minerThreads = NULL;
     }
 
-    if (!fMasterNode || nThreads < 1 || !fGenerate)
+    if (!fMasterNode || nThreads < 2 || !fGenerate)
         return;
 
     minerThreads = new boost::thread_group();
