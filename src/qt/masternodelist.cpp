@@ -138,6 +138,7 @@ void MasternodeList::StartAll(std::string strCommand)
         CTxIn txin = CTxIn(uint256S(mne.getTxHash()), nOutputIndex);
 
         if(strCommand == "start-missing" && mnodeman.Has(txin)) continue;
+        if(strCommand == "start-disabled" && mnb.IsEnabled()) continue;
 
         bool fSuccess = CMasternodeBroadcast::Create(mne.getIp(), mne.getPrivKey(), mne.getTxHash(), mne.getOutputIndex(), strError, mnb);
 
@@ -368,6 +369,38 @@ void MasternodeList::on_startAllButton_clicked()
     }
 
     StartAll();
+}
+
+void MasternodeList::on_startDisabledButton_clicked()
+{
+
+    if(!masternodeSync.IsMasternodeListSynced()) {
+        QMessageBox::critical(this, tr("Command is not available right now"),
+            tr("You can't use this command until masternode list is synced"));
+        return;
+    }
+
+    // Display message box
+    QMessageBox::StandardButton retval = QMessageBox::question(this,
+        tr("Confirm disabled masternodes start"),
+        tr("Are you sure you want to start DISABLED masternodes?"),
+        QMessageBox::Yes | QMessageBox::Cancel,
+        QMessageBox::Cancel);
+
+    if(retval != QMessageBox::Yes) return;
+
+    WalletModel::EncryptionStatus encStatus = walletModel->getEncryptionStatus();
+
+    if(encStatus == walletModel->Locked || encStatus == walletModel->UnlockedForMixingOnly) {
+        WalletModel::UnlockContext ctx(walletModel->requestUnlock());
+
+        if(!ctx.isValid()) return; // Unlock wallet was cancelled
+
+        StartAll("start-disabled");
+        return;
+    }
+
+    StartAll("start-disabled");
 }
 
 void MasternodeList::on_startMissingButton_clicked()

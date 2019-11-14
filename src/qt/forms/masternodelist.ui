@@ -159,6 +159,13 @@
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="startDisabledButton">
+               <property name="text">
+                <string>Start &amp;DISABLED</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="startMissingButton">
                <property name="text">
                 <string>Start &amp;MISSING</string>
