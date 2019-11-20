@@ -5057,6 +5057,8 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
         We're going to be asking many nodes upfront for the full inventory list, so we'll get duplicates of these.
         We want to only update the time on new hits, so that we can time out appropriately if needed.
     */
+    case MSG_POSTX:
+        retrun posynctx.AlreadyHave(inv.hash);
     case MSG_TXLOCK_REQUEST:
         return instantsend.AlreadyHave(inv.hash);
 

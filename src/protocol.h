@@ -343,6 +343,7 @@ enum {
     MSG_FILTERED_BLOCK,
     // 3DCoin message types
     // NOTE: declare non-implmented here, we must keep this enum consistent and backwards compatible
+    MSG_POSTX,
     MSG_TXLOCK_REQUEST,
     MSG_TXLOCK_VOTE,
     MSG_SPORK,
