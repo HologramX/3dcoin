@@ -407,6 +407,19 @@ int CMasternodeMan::CountEnabled(int nProtocolVersion)
     return nCount;
 }
 
+int CMasternodeMan::CountProtoVersion(int nProtocolVersion)
+{
+    LOCK(cs);
+    int nCount = 0;
+
+    BOOST_FOREACH(CMasternode& mn, vMasternodes) {
+        if(mn.nProtocolVersion != nProtocolVersion || !mn.IsEnabled()) continue;
+        nCount++;
+    }
+
+    return nCount;
+}
+
 /* Only IPv4 masternodes are allowed in 12.1, saving this for later
 int CMasternodeMan::CountByIP(int nNetworkType)
 {

@@ -96,23 +96,29 @@ UniValue masternode(const UniValue& params, bool fHelp)
 
     if (strCommand == "count")
     {
-        if (params.size() > 2)
+        if (params.size() > 3)
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Too many parameters");
 
         if (params.size() == 1)
             return mnodeman.size();
 
         std::string strMode = params[1].get_str();
-
+        int protocolv = PROTOCOL_VERSION;
+        if (params.size() == 3)
+            protocolv = atoi(params[2].get_str());        
 
         if (strMode == "enabled")
             return mnodeman.CountEnabled();
+
+        if (strMode == "version")
+            return strprintf("Protocol Version(%d): %d",
+                protocolv, mnodeman.CountProtoVersion(protocolv));
 
         int nCount;
         mnodeman.GetNextMasternodeInQueueForPayment(true, nCount);
 
         if (strMode == "qualify")
-            return nCount;
+            return nCount; 
 
         if (strMode == "all")
             return strprintf("Total: %d (Enabled: %d / Qualify: %d)",
