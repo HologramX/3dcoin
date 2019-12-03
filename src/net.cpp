@@ -26,6 +26,7 @@
 #include "instantx.h"
 #include "masternode/sync.h"
 #include "masternode/man.h"
+#include "posync.h"
 
 #ifdef WIN32
 #include <string.h>
@@ -2146,10 +2147,13 @@ void RelayTransaction(const CTransaction& tx)
     ss.reserve(10000);
     uint256 hash = tx.GetHash();
     CTxLockRequest txLockRequest;
+    CPosTxVote posTxVote;
     if(mapDarksendBroadcastTxes.count(hash)) { // MSG_DSTX
         ss << mapDarksendBroadcastTxes[hash];
     } else if(instantsend.GetTxLockRequest(hash, txLockRequest)) { // MSG_TXLOCK_REQUEST
         ss << txLockRequest;
+    } else if (posync.GetPosTxVote(tx, posTxVote)){ // MSG_POS_TX
+        ss << postxvote;
     } else { // MSG_TX
         ss << tx;
     }
@@ -2159,8 +2163,18 @@ void RelayTransaction(const CTransaction& tx)
 void RelayTransaction(const CTransaction& tx, const CDataStream& ss)
 {
     uint256 hash = tx.GetHash();
-    int nInv = mapDarksendBroadcastTxes.count(hash) ? MSG_DSTX :
-                (instantsend.HasTxLockRequest(hash) ? MSG_TXLOCK_REQUEST : MSG_TX);
+
+    if(mapDarksendBroadcastTxes.count(hash)){
+        int nInv = MSG_DSTX;
+    } else if(instantsend.HasTxLockRequest(hash)){
+        int nInv = MSG_TXLOCK_REQUEST;
+    } else if(posync.HasPosTxVote(hash)){
+        int nInv = MSG_POS_TX;
+    } else {
+        int nInv = MSG_TX;
+    }
+    /*int nInv = mapDarksendBroadcastTxes.count(hash) ? MSG_DSTX :
+                (instantsend.HasTxLockRequest(hash) ? MSG_TXLOCK_REQUEST : MSG_TX);*/
     CInv inv(nInv, hash);
     {
         LOCK(cs_mapRelay);
