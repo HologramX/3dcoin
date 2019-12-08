@@ -5058,8 +5058,11 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
         We're going to be asking many nodes upfront for the full inventory list, so we'll get duplicates of these.
         We want to only update the time on new hits, so that we can time out appropriately if needed.
     */
-    case MSG_POSTX:
+    case MSG_POS_TX:
         retrun posync.AlreadyHave(inv.hash);
+    case MSG_POSTX_VOTE:
+        return posync.AlreadyHave(inv.hash);
+
     case MSG_TXLOCK_REQUEST:
         return instantsend.AlreadyHave(inv.hash);
 
@@ -5221,6 +5224,7 @@ void static ProcessGetData(CNode* pfrom, const Consensus::Params& consensusParam
                         pushed = true;
                     }
                 }
+                // Begin PoSync Messages
 
                 if (!pushed && inv.type == MSG_POS_TX) {
                     CPosTxVote posTxVote;
@@ -5232,6 +5236,18 @@ void static ProcessGetData(CNode* pfrom, const Consensus::Params& consensusParam
                         pushed = true;
                     }
                 }
+
+                if (!pushed && inv.type == MSG_POSTX_VOTE) {
+                    CNodeVote vote;
+                    if(posync.GetNodeVote(inv.hash, vote)) {
+                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                        ss.reserve(1000);
+                        ss << vote;
+                        pfrom->PushMessage(NetMsgType::POSTXVOTE, ss);
+                        pushed = true;
+                    }
+                }
+                // End PoSync Messages
 
                 if (!pushed && inv.type == MSG_TXLOCK_REQUEST) {
                     CTxLockRequest txLockRequest;
