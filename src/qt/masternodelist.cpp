@@ -187,24 +187,20 @@ void MasternodeList::updateMyMasternodeInfo(QString strAlias, QString strAddr, m
 
     QTableWidgetItem *aliasItem = new QTableWidgetItem(strAlias);
     QTableWidgetItem *addrItem = new QTableWidgetItem(infoMn.fInfoValid ? QString::fromStdString(infoMn.addr.ToString()) : strAddr);
-    QTableWidgetItem *layer = new QTableWidgetItem(QString::number(infoMn.fInfoValid ? infoMn.nProtocolVersion : -1));
     QTableWidgetItem *protocolItem = new QTableWidgetItem(QString::number(infoMn.fInfoValid ? infoMn.nProtocolVersion : -1));
     QTableWidgetItem *statusItem = new QTableWidgetItem(QString::fromStdString(infoMn.fInfoValid ? CMasternode::StateToString(infoMn.nActiveState) : "MISSING"));
     QTableWidgetItem *activeSecondsItem = new QTableWidgetItem(QString::fromStdString(DurationToDHMS(infoMn.fInfoValid ? (infoMn.nTimeLastPing - infoMn.sigTime) : 0)));
     QTableWidgetItem *lastSeenItem = new QTableWidgetItem(QString::fromStdString(DateTimeStrFormat("%Y-%m-%d %H:%M",
                                                                                                    infoMn.fInfoValid ? infoMn.nTimeLastPing + QDateTime::currentDateTime().offsetFromUtc() : 0)));
-    QTableWidgetItem *score = new QTableWidgetItem(QString::number(infoMn.fInfoValid ? infoMn.nProtocolVersion : -1));
     QTableWidgetItem *pubkeyItem = new QTableWidgetItem(QString::fromStdString(infoMn.fInfoValid ? CBitcoinAddress(infoMn.pubKeyCollateralAddress.GetID()).ToString() : ""));
 
     ui->tableWidgetMyMasternodes->setItem(nNewRow, 0, aliasItem);
     ui->tableWidgetMyMasternodes->setItem(nNewRow, 1, addrItem);
-    ui->tableWidgetMyMasternodes->setItem(nNewRow, 2, layer);
-    ui->tableWidgetMyMasternodes->setItem(nNewRow, 3, protocolItem);
-    ui->tableWidgetMyMasternodes->setItem(nNewRow, 4, statusItem);
-    ui->tableWidgetMyMasternodes->setItem(nNewRow, 5, activeSecondsItem);
-    ui->tableWidgetMyMasternodes->setItem(nNewRow, 6, lastSeenItem);
-    ui->tableWidgetMyMasternodes->setItem(nNewRow, 7, score);
-    ui->tableWidgetMyMasternodes->setItem(nNewRow, 8, pubkeyItem);
+    ui->tableWidgetMyMasternodes->setItem(nNewRow, 2, protocolItem);
+    ui->tableWidgetMyMasternodes->setItem(nNewRow, 3, statusItem);
+    ui->tableWidgetMyMasternodes->setItem(nNewRow, 4, activeSecondsItem);
+    ui->tableWidgetMyMasternodes->setItem(nNewRow, 5, lastSeenItem);
+    ui->tableWidgetMyMasternodes->setItem(nNewRow, 6, pubkeyItem);
 }
 
 void MasternodeList::updateMyNodeList(bool fForce)
@@ -275,36 +271,30 @@ void MasternodeList::updateNodeList()
         // populate list
         // Address, Protocol, Status, Active Seconds, Last Seen, Pub Key
         QTableWidgetItem *addressItem = new QTableWidgetItem(QString::fromStdString(mn.addr.ToString()));
-        QTableWidgetItem *layer = new QTableWidgetItem(QString::number(mn.nProtocolVersion));
         QTableWidgetItem *protocolItem = new QTableWidgetItem(QString::number(mn.nProtocolVersion));
         QTableWidgetItem *statusItem = new QTableWidgetItem(QString::fromStdString(mn.GetStatus()));
         QTableWidgetItem *activeSecondsItem = new QTableWidgetItem(QString::fromStdString(DurationToDHMS(mn.lastPing.sigTime - mn.sigTime)));
         QTableWidgetItem *lastSeenItem = new QTableWidgetItem(QString::fromStdString(DateTimeStrFormat("%Y-%m-%d %H:%M", mn.lastPing.sigTime + QDateTime::currentDateTime().offsetFromUtc())));
-        QTableWidgetItem *score = new QTableWidgetItem(QString::number(mn.nProtocolVersion));
         QTableWidgetItem *pubkeyItem = new QTableWidgetItem(QString::fromStdString(CBitcoinAddress(mn.pubKeyCollateralAddress.GetID()).ToString()));
 
         if (strCurrentFilter != "")
         {
             strToFilter =   addressItem->text() + " " +
-                            layer->text() + " " +
                             protocolItem->text() + " " +
                             statusItem->text() + " " +
                             activeSecondsItem->text() + " " +
                             lastSeenItem->text() + " " +
-                            score->text() + " " +
                             pubkeyItem->text();
             if (!strToFilter.contains(strCurrentFilter)) continue;
         }
 
         ui->tableWidgetMasternodes->insertRow(0);
         ui->tableWidgetMasternodes->setItem(0, 0, addressItem);
-        ui->tableWidgetMasternodes->setItem(0, 1, layer);
-        ui->tableWidgetMasternodes->setItem(0, 2, protocolItem);
-        ui->tableWidgetMasternodes->setItem(0, 3, statusItem);
-        ui->tableWidgetMasternodes->setItem(0, 4, activeSecondsItem);
-        ui->tableWidgetMasternodes->setItem(0, 5, lastSeenItem);
-        ui->tableWidgetMasternodes->setItem(0, 6, score);
-        ui->tableWidgetMasternodes->setItem(0, 7, pubkeyItem);
+        ui->tableWidgetMasternodes->setItem(0, 1, protocolItem);
+        ui->tableWidgetMasternodes->setItem(0, 2, statusItem);
+        ui->tableWidgetMasternodes->setItem(0, 3, activeSecondsItem);
+        ui->tableWidgetMasternodes->setItem(0, 4, lastSeenItem);
+        ui->tableWidgetMasternodes->setItem(0, 5, pubkeyItem);
     }
 
     ui->countLabel->setText(QString::number(ui->tableWidgetMasternodes->rowCount()));

@@ -46,7 +46,6 @@
 #include "masternode/payments.h"
 #include "masternode/sync.h"
 #include "masternode/man.h"
-#include "posync.h"
 
 #include <sstream>
 
@@ -5058,11 +5057,6 @@ bool static AlreadyHave(const CInv& inv) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
         We're going to be asking many nodes upfront for the full inventory list, so we'll get duplicates of these.
         We want to only update the time on new hits, so that we can time out appropriately if needed.
     */
-    case MSG_POS_TX:
-        retrun posync.AlreadyHave(inv.hash);
-    case MSG_POSTX_VOTE:
-        return posync.AlreadyHave(inv.hash);
-
     case MSG_TXLOCK_REQUEST:
         return instantsend.AlreadyHave(inv.hash);
 
@@ -5224,30 +5218,6 @@ void static ProcessGetData(CNode* pfrom, const Consensus::Params& consensusParam
                         pushed = true;
                     }
                 }
-                // Begin PoSync Messages
-
-                if (!pushed && inv.type == MSG_POS_TX) {
-                    CPosTxVote posTxVote;
-                    if(posync.GetPosTxVote(inv.hash, posTxVote)) {
-                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
-                        ss.reserve(1000);
-                        ss << posTxVote;
-                        pfrom->PushMessage(NetMsgType::POSTX, ss);
-                        pushed = true;
-                    }
-                }
-
-                if (!pushed && inv.type == MSG_POSTX_VOTE) {
-                    CNodeVote vote;
-                    if(posync.GetNodeVote(inv.hash, vote)) {
-                        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
-                        ss.reserve(1000);
-                        ss << vote;
-                        pfrom->PushMessage(NetMsgType::POSTXVOTE, ss);
-                        pushed = true;
-                    }
-                }
-                // End PoSync Messages
 
                 if (!pushed && inv.type == MSG_TXLOCK_REQUEST) {
                     CTxLockRequest txLockRequest;
@@ -5867,7 +5837,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     }
 
 
-    else if (strCommand == NetMsgType::TX || strCommand == NetMsgType::DSTX || strCommand == NetMsgType::TXLOCKREQUEST || NetMsgType::POSTX)
+    else if (strCommand == NetMsgType::TX || strCommand == NetMsgType::DSTX || strCommand == NetMsgType::TXLOCKREQUEST)
     {
         // Stop processing the transaction early if
         // We are in blocks only mode and peer is either not whitelisted or whitelistrelay is off
@@ -5882,7 +5852,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         CTransaction tx;
         CTxLockRequest txLockRequest;
         CDarksendBroadcastTx dstx;
-        CPosTxVote posTxVote;
         int nInvType = MSG_TX;
 
         // Read data and assign inv type
@@ -5896,11 +5865,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             vRecv >> dstx;
             tx = dstx.tx;
             nInvType = MSG_DSTX;
-        } else if(strCommand == NetMsgType::POSTX) {
-            vRecv >> posTxVote;
-            tx = posTxVote;
-            nInvType = MSG_POS_TX;
         }
+
         CInv inv(nInvType, tx.GetHash());
         pfrom->AddInventoryKnown(inv);
         pfrom->setAskFor.erase(inv.hash);
@@ -5910,12 +5876,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             if(!instantsend.ProcessTxLockRequest(txLockRequest)) {
                 LogPrint("instantsend", "TXLOCKREQUEST -- failed %s\n", txLockRequest.GetHash().ToString());
                 return false;
-        } else if (strCommand == NetMsgType::POSTX) {
-            if(!posync.ProcessPosTxVote(posTxVote)) {
-                LogPrint("posync", "POSTXVOTE -- failed %s\n", posTxVote.GetHash().ToString());
-                return false;
             }
-
         } else if (strCommand == NetMsgType::DSTX) {
             uint256 hashTx = tx.GetHash();
 
@@ -5965,10 +5926,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                 LogPrintf("TXLOCKREQUEST -- Transaction Lock Request accepted, txid=%s, peer=%d\n",
                         tx.GetHash().ToString(), pfrom->id);
                 instantsend.AcceptLockRequest(txLockRequest);
-            } else if (strCommand == NetMsgType::POSTX) {
-                LogPrintf("POSTXVOTE -- POSTX Transaction accepted, txid=%s, peer=%d\n",
-                        tx.GetHash().ToString(), pfrom->id);
-                posync.AcceptPosTxVote(posTxVote);
             }
 
             mempool.check(pcoinsTip);
@@ -6057,13 +6014,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                 instantsend.RejectLockRequest(txLockRequest);
                 // this lets other nodes to create lock request candidate i.e.
                 // this allows multiple conflicting lock requests to compete for votes
-                RelayTransaction(tx);
-            }
-
-            if (strCommand == NetMsgType::POSTX && !AlreadyHave(inv)) {
-
-                posync.RejectPosTxVote(posTxVote);
-                // Relay Transaction even if the vote check has failed.
                 RelayTransaction(tx);
             }
 

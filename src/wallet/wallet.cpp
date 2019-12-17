@@ -31,7 +31,6 @@
 #include "instantx.h"
 #include "keepass.h"
 #include "spork.h"
-#include "posync.h"
 
 #include <assert.h>
 
@@ -1767,11 +1766,6 @@ bool CWalletTx::RelayWalletTransaction(std::string strCommand)
             if(strCommand == NetMsgType::TXLOCKREQUEST) {
                 instantsend.ProcessTxLockRequest(((CTxLockRequest)*this));
             }
-
-            if(strCommand == NetMsgType::POSTX) {
-                instantsend.ProcessPosTxVote(((CPosTxVote)*this));
-            }
-
             RelayTransaction((CTransaction)*this);
             return true;
         }

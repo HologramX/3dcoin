@@ -51,7 +51,7 @@
        </property>
        <widget class="QWidget" name="tabMyMasternodes">
         <attribute name="title">
-         <string>My Nodes</string>
+         <string>My Masternodes</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="0" column="0">
@@ -114,11 +114,6 @@
              </column>
              <column>
               <property name="text">
-               <string>Layer</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
                <string>Protocol</string>
               </property>
              </column>
@@ -135,11 +130,6 @@
              <column>
               <property name="text">
                <string>Last Seen</string>
-              </property>
-             </column>
-             <column>
-              <property name="text">
-               <string>Score</string>
               </property>
              </column>
              <column>
@@ -224,7 +214,7 @@
        </widget>
        <widget class="QWidget" name="tabAllMasternodes">
         <attribute name="title">
-         <string>All Nodes</string>
+         <string>All Masternodes</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout">
          <item row="1" column="0">
@@ -254,11 +244,6 @@
            </column>
            <column>
             <property name="text">
-             <string>Layer</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
              <string>Protocol</string>
             </property>
            </column>
@@ -275,11 +260,6 @@
            <column>
             <property name="text">
              <string>Last Seen</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>Score</string>
             </property>
            </column>
            <column>
@@ -304,7 +284,7 @@
            <item>
             <widget class="QLineEdit" name="filterLineEdit">
              <property name="toolTip">
-              <string>Filter node list</string>
+              <string>Filter masternode list</string>
              </property>
             </widget>
            </item>
