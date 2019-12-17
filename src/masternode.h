@@ -253,7 +253,7 @@ public:
     bool UpdateFromNewBroadcast(CMasternodeBroadcast& mnb);
 
     static CollateralStatus CheckCollateral(CTxIn vin);
-    static CollateralStatus CheckCollateral(CTxIn vin, int& nHeight);
+    static CollateralStatus CheckCollateral(CTxIn vin, int& nHeight, bool fCollateral = false);
 
     void Check(bool fForce = false);
 

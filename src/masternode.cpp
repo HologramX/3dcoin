@@ -164,17 +164,20 @@ arith_uint256 CMasternode::CalculateScore(const uint256& blockHash)
 CMasternode::CollateralStatus CMasternode::CheckCollateral(CTxIn vin)
 {
     int nHeight;
-    return CheckCollateral(vin, nHeight);
+    return CheckCollateral(vin, nHeight, false);
 }
 
-CMasternode::CollateralStatus CMasternode::CheckCollateral(CTxIn vin, int& nHeight)
+CMasternode::CollateralStatus CMasternode::CheckCollateral(CTxIn vin, int& nHeight, bool fCollateral)
 {
     AssertLockHeld(cs_main);
 
     int tip = chainActive.Height();
     CCoins coins;
     int Collateral_Amount = tip > Params().GetConsensus().nV014v3Start ? 25000 : 1000;
-    bool fCollateral = true;
+    if(pcoinsTip->GetCoins(vin.prevout.hash, coins)){
+        nHeight = coins.nHeight;
+        //LogPrintf("CMasternode::CheckCollateral -- tx=%d CoinnHeight=%d, MN=%d)\n", nHeight, vin.prevout.ToStringShort());
+    }
     
     if(fCollateral){
     
@@ -190,7 +193,7 @@ CMasternode::CollateralStatus CMasternode::CheckCollateral(CTxIn vin, int& nHeig
         }
     }
 
-    nHeight = coins.nHeight;
+    
     return COLLATERAL_OK;
 }
 
@@ -670,7 +673,7 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
         }
 
         int nHeight;
-        CollateralStatus err = CheckCollateral(vin, nHeight);
+        CollateralStatus err = CheckCollateral(vin, nHeight, false);
         if (err == COLLATERAL_UTXO_NOT_FOUND) {
             LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
             return false;

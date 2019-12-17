@@ -571,8 +571,8 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-mnconflock=<n>", strprintf(_("Lock masternodes from masternode configuration file (default: %u)"), 1));
     strUsage += HelpMessageOpt("-masternodeprivkey=<n>", _("Set the masternode private key"));
 
-    strUsage += HelpMessageGroup(_("Primenode options:"));
-    strUsage += HelpMessageOpt("-primenode=<n>", strprintf(_("Enable the client to act as a primenode (0-1, default: %u)"), 0));
+    /*strUsage += HelpMessageGroup(_("Primenode options:"));
+    strUsage += HelpMessageOpt("-primenode=<n>", strprintf(_("Enable the client to act as a primenode (0-1, default: %u)"), 0));*/
 
     strUsage += HelpMessageGroup(_("Node relay options:"));
     if (showDebug)
@@ -873,10 +873,10 @@ void InitParameterInteraction()
             LogPrintf("%s: parameter interaction: -whitelistforcerelay=1 -> setting -whitelistrelay=1\n", __func__);
     }
 
-    if (GetBoolArg("-primenode", false)) {
+   /* if (GetBoolArg("-primenode", false)) {
         if (SoftSetBoolArg("-listen", true))
             LogPrintf("%s: parameter interaction: -primenode=1 -> setting -listen=1\n", __func__);
-    }
+    }*/
 
     if (mapArgs.count("-hdseed") && IsHex(GetArg("-hdseed", "not hex")) && (mapArgs.count("-mnemonic") || mapArgs.count("-mnemonicpassphrase"))) {
         mapArgs.erase("-mnemonic");
@@ -1852,7 +1852,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     // **************************************************************** Primenode
 
-    fPrimeNode = GetBoolArg("-primenode", false);
+    /*fPrimeNode = GetBoolArg("-primenode", false);*/
 
      
 
