@@ -51,7 +51,7 @@
        </property>
        <widget class="QWidget" name="tabMyMasternodes">
         <attribute name="title">
-         <string>My Masternodes</string>
+         <string>My Nodes</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="0" column="0">
@@ -114,6 +114,11 @@
              </column>
              <column>
               <property name="text">
+               <string>Layer</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
                <string>Protocol</string>
               </property>
              </column>
@@ -130,6 +135,11 @@
              <column>
               <property name="text">
                <string>Last Seen</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Score</string>
               </property>
              </column>
              <column>
@@ -155,6 +165,13 @@
               <widget class="QPushButton" name="startAllButton">
                <property name="text">
                 <string>Start &amp;all</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="startDisabledButton">
+               <property name="text">
+                <string>Start &amp;DISABLED</string>
                </property>
               </widget>
              </item>
@@ -207,7 +224,7 @@
        </widget>
        <widget class="QWidget" name="tabAllMasternodes">
         <attribute name="title">
-         <string>All Masternodes</string>
+         <string>All Nodes</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout">
          <item row="1" column="0">
@@ -237,6 +254,11 @@
            </column>
            <column>
             <property name="text">
+             <string>Layer</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
              <string>Protocol</string>
             </property>
            </column>
@@ -253,6 +275,11 @@
            <column>
             <property name="text">
              <string>Last Seen</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string>Score</string>
             </property>
            </column>
            <column>
@@ -277,7 +304,7 @@
            <item>
             <widget class="QLineEdit" name="filterLineEdit">
              <property name="toolTip">
-              <string>Filter masternode list</string>
+              <string>Filter node list</string>
              </property>
             </widget>
            </item>
