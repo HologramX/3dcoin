@@ -34,6 +34,8 @@ CMasternode::CMasternode() :
     nProtocolVersion(PROTOCOL_VERSION),
     nPoSeBanScore(0),
     nPoSeBanHeight(0),
+    nLayer(MASTERNODE),
+    nScore(0),
     fAllowMixingTx(true),
     fUnitTest(false)
 {}
@@ -56,6 +58,8 @@ CMasternode::CMasternode(CService addrNew, CTxIn vinNew, CPubKey pubKeyCollatera
     nProtocolVersion(nProtocolVersionIn),
     nPoSeBanScore(0),
     nPoSeBanHeight(0),
+    nLayer(MASTERNODE),
+    nScore(0),
     fAllowMixingTx(true),
     fUnitTest(false)
 {}
@@ -78,6 +82,8 @@ CMasternode::CMasternode(const CMasternode& other) :
     nProtocolVersion(other.nProtocolVersion),
     nPoSeBanScore(other.nPoSeBanScore),
     nPoSeBanHeight(other.nPoSeBanHeight),
+    nLayer(other.nLayer),
+    nScore(other.nScore),
     fAllowMixingTx(other.fAllowMixingTx),
     fUnitTest(other.fUnitTest)
 {}
@@ -100,6 +106,8 @@ CMasternode::CMasternode(const CMasternodeBroadcast& mnb) :
     nProtocolVersion(mnb.nProtocolVersion),
     nPoSeBanScore(0),
     nPoSeBanHeight(0),
+    nLayer(mnb.nLayer),
+    nScore(0),
     fAllowMixingTx(true),
     fUnitTest(false)
 {}
@@ -364,6 +372,8 @@ masternode_info_t CMasternode::GetInfo()
     info.nTimeLastPing = lastPing.sigTime;
     info.nActiveState = nActiveState;
     info.nProtocolVersion = nProtocolVersion;
+    info.nLayer = nLayer;
+    info.nScore = nScore;
     info.fInfoValid = true;
     return info;
 }
@@ -977,4 +987,24 @@ void CMasternode::FlagGovernanceItemsAsDirty()
     for(size_t i = 0; i < vecDirty.size(); ++i) {
         mnodeman.AddDirtyGovernanceObjectHash(vecDirty[i]);
     }
+}
+
+std::string CMasternode::LayerToString(int nLayerIn)
+{
+    switch(nLayerIn) {
+        case MASTERNODE:                        return "MASTERNODE";
+        case PRIMENODE:                         return "PRIMENODE";
+        case PULSENODE:                         return "PULSENODE";
+        default:                                return "UNKNOWN";
+    }
+}
+
+std::string CMasternode::GetLayerString() const
+{
+    return LayerToString(nLayer);
+}
+
+std::string CMasternode::GetLayer() const
+{
+    return GetLayerString();
 }
