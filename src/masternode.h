@@ -116,6 +116,8 @@ struct masternode_info_t
           nTimeLastPing(0),
           nActiveState(0),
           nProtocolVersion(0),
+          nLayer(0),
+          nScore(0),
           fInfoValid(false)
         {}
 
@@ -131,6 +133,8 @@ struct masternode_info_t
     int64_t nTimeLastPing;
     int nActiveState;
     int nProtocolVersion;
+    int nLayer;
+    int nScore;
     bool fInfoValid;
 };
 
@@ -163,6 +167,12 @@ public:
         COLLATERAL_INVALID_AMOUNT
     };
 
+    enum layer {
+        MASTERNODE,
+        PRIMENODE,
+        PULSENODE
+    };
+
     CTxIn vin;
     CService addr;
     CPubKey pubKeyCollateralAddress;
@@ -180,6 +190,8 @@ public:
     int nProtocolVersion;
     int nPoSeBanScore;
     int nPoSeBanHeight;
+    int nLayer;
+    int nScore;
     bool fAllowMixingTx;
     bool fUnitTest;
 
@@ -213,6 +225,8 @@ public:
         READWRITE(nProtocolVersion);
         READWRITE(nPoSeBanScore);
         READWRITE(nPoSeBanHeight);
+        READWRITE(nLayer);
+        READWRITE(nScore);
         READWRITE(fAllowMixingTx);
         READWRITE(fUnitTest);
         READWRITE(mapGovernanceObjectsVotedOn);
@@ -242,6 +256,8 @@ public:
         swap(first.nProtocolVersion, second.nProtocolVersion);
         swap(first.nPoSeBanScore, second.nPoSeBanScore);
         swap(first.nPoSeBanHeight, second.nPoSeBanHeight);
+        swap(first.nLayer, second.nLayer);
+        swap(first.nScore, second.nScore);
         swap(first.fAllowMixingTx, second.fAllowMixingTx);
         swap(first.fUnitTest, second.fUnitTest);
         swap(first.mapGovernanceObjectsVotedOn, second.mapGovernanceObjectsVotedOn);
@@ -253,7 +269,7 @@ public:
     bool UpdateFromNewBroadcast(CMasternodeBroadcast& mnb);
 
     static CollateralStatus CheckCollateral(CTxIn vin);
-    static CollateralStatus CheckCollateral(CTxIn vin, int& nHeight);
+    static CollateralStatus CheckCollateral(CTxIn vin, int& nHeight, bool fCollateral = false);
 
     void Check(bool fForce = false);
 
@@ -326,6 +342,10 @@ public:
     int GetLastPaidTime() { return nTimeLastPaid; }
     int GetLastPaidBlock() { return nBlockLastPaid; }
     void UpdateLastPaid(const CBlockIndex *pindex, int nMaxBlocksToScanBack);
+
+    static std::string LayerToString(int nLayerIn);
+    std::string GetLayerString() const;
+    std::string GetLayer() const;
 
     // KEEP TRACK OF EACH GOVERNANCE ITEM INCASE THIS NODE GOES OFFLINE, SO WE CAN RECALC THEIR STATUS
     void AddGovernanceVote(uint256 nGovernanceObjectHash);
@@ -465,6 +485,8 @@ public:
         CInv inv(MSG_MASTERNODE_VERIFY, GetHash());
         RelayInv(inv);
     }
+
+    
 };
 
 #endif
