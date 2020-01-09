@@ -78,7 +78,7 @@ int nScriptCheckThreads = 0;
 bool fImporting = false;
 bool fReindex = false;
 bool fTxIndex = true;
-bool fAddressIndex = false;
+bool fAddressIndex = true;
 bool fTimestampIndex = false;
 bool fSpentIndex = false;
 bool fHavePruned = false;
@@ -1649,9 +1649,6 @@ bool GetTransaction(const uint256 &hash, CTransaction &txOut, const Consensus::P
 
     return false;
 }
-
-
-
 
 
 
@@ -3828,7 +3825,7 @@ static bool CheckIndexAgainstCheckpoint(const CBlockIndex* pindexPrev, CValidati
         return state.DoS(100, error("%s: forked chain older than last checkpoint (height %d)", __func__, nHeight));
 
     // Don't accept any forks from the main chain who doesn't have last checkpoint
-    if (pindexPrev->nHeight==847872 && pindexPrev->GetBlockHash() != pcheckpoint->GetBlockHash())
+    if (pindexPrev->nHeight==878323 && pindexPrev->GetBlockHash() != pcheckpoint->GetBlockHash())
         return state.DoS(100, error("%s: forked chain doesn't have last checkpoint last checkpoint (height %d)", __func__, nHeight));
 
     return true;
