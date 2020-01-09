@@ -171,21 +171,79 @@ arith_uint256 CMasternode::CalculateScore(const uint256& blockHash)
 
 CMasternode::CollateralStatus CMasternode::CheckCollateral(CTxIn vin)
 {
+
     int nHeight;
-    return CheckCollateral(vin, nHeight, false);
+    uint256 hash;
+    CTransaction tx;
+    int tip = chainActive.Height();
+    
+
+    if(!GetTransaction(vin.prevout.hash, tx, Params().GetConsensus(), hash, true))
+    {
+        LogPrintf("CMasternode::CheckCollateral: no tx found = %s\n", vin.prevout.hash.ToString());
+        return COLLATERAL_UTXO_NOT_FOUND;
+    }
+
+    
+    nHeight = tx.nLockTime+1;
+
+    int Collateral_Amount = nHeight > Params().GetConsensus().nV014v3Start ? 25000 : 1000;
+    
+        
+        if(tx.vout[vin.prevout.n].nValue == Collateral_Amount *COIN)
+        {   
+
+            CTxDestination address1;
+            ExtractDestination(tx.vout[vin.prevout.n].scriptPubKey, address1);
+            CBitcoinAddress address2(address1);
+
+            uint160 hashBytes;
+            int type = 0;
+            if(!address2.GetIndexKey(hashBytes, type)){
+                LogPrintf("CMasternode::CheckCollateral: Invalid address\n");
+            }
+            
+            std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+            int start = tip-25000; 
+            int end = tip; 
+
+            if(nHeight < Params().GetConsensus().nV014v3Start){
+                start = 800000;
+                end = 850000;
+            }
+            
+                        if (GetAddressIndex(hashBytes, type, addressIndex, start, end)) {
+                            //LogPrintf("CMasternode::CheckCollateral: index start = %i to end = %i for this address= %s\n", start, end, address2.ToString());
+                                for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=addressIndex.begin(); it!=addressIndex.end(); it++) {
+                                        
+                                    
+                                    if(GetTransaction(it->first.txhash, tx, Params().GetConsensus(), hash, true)){
+                                        if(tx.IsCoinBase()){
+                                            return COLLATERAL_OK;
+                                        }
+                                                    
+                                    }
+                                    
+                
+                        
+                                }
+           
+                        }
+                    
+            LogPrintf("CMasternode::CheckCollateral: No coinbase tx found, new Collateral is required for address=%s, \n", address2.ToString());
+            
+
+        }
+    
+    return CheckCollateral(vin, nHeight, true);
 }
 
 CMasternode::CollateralStatus CMasternode::CheckCollateral(CTxIn vin, int& nHeight, bool fCollateral)
 {
-    AssertLockHeld(cs_main);
 
-    int tip = chainActive.Height();
+AssertLockHeld(cs_main);
+
     CCoins coins;
-    int Collateral_Amount = tip > Params().GetConsensus().nV014v3Start ? 25000 : 1000;
-    if(pcoinsTip->GetCoins(vin.prevout.hash, coins)){
-        nHeight = coins.nHeight;
-        //LogPrintf("CMasternode::CheckCollateral -- tx=%d CoinnHeight=%d, MN=%d)\n", nHeight, vin.prevout.ToStringShort());
-    }
     
     if(fCollateral){
     
@@ -196,13 +254,15 @@ CMasternode::CollateralStatus CMasternode::CheckCollateral(CTxIn vin, int& nHeig
         }    
         
 
-        if(coins.vout[vin.prevout.n].nValue != Collateral_Amount * COIN) {
+        if(coins.vout[vin.prevout.n].nValue != 25000 * COIN) {
+                LogPrintf("CMasternode::CheckCollateral: invalid Collateral %i, required = %i\n", coins.vout[vin.prevout.n].nValue, 25000);
                 return COLLATERAL_INVALID_AMOUNT;
         }
     }
 
-    
-    return COLLATERAL_OK;
+    nHeight = coins.nHeight;
+    return COLLATERAL_OK;                              
+      
 }
 
 void CMasternode::Check(bool fForce)
@@ -224,13 +284,12 @@ void CMasternode::Check(bool fForce)
         TRY_LOCK(cs_main, lockMain);
         if(!lockMain) return;
 
-        CollateralStatus err = CheckCollateral(vin);
-        if (err == COLLATERAL_UTXO_NOT_FOUND) {
-            nActiveState = MASTERNODE_OUTPOINT_SPENT;
-            LogPrint("masternode", "CMasternode::Check -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
-            return;
-        }
-
+        // CollateralStatus err = CheckCollateral(vin);
+        // if (err == COLLATERAL_UTXO_NOT_FOUND) {
+        //     nActiveState = MASTERNODE_OUTPOINT_SPENT;
+        //     LogPrint("masternode", "CMasternode::Check -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
+        //     return;
+        // }
         nHeight = chainActive.Height();
     }
 
@@ -335,7 +394,7 @@ bool CMasternode::IsInputAssociatedWithPubkey()
     uint256 hash;
     if(GetTransaction(vin.prevout.hash, tx, Params().GetConsensus(), hash, true)) {
         BOOST_FOREACH(CTxOut out, tx.vout)
-            if(out.nValue == 1000*COIN && out.scriptPubKey == payee) return true;
+            if((out.nValue == 1000*COIN && out.scriptPubKey == payee && tx.nLockTime < (u_int)Params().GetConsensus().nV014v3Start) || (out.nValue == 25000*COIN && out.scriptPubKey == payee)) return true;
     }
 
     return false;
@@ -682,21 +741,13 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
             return false;
         }
 
-        int nHeight;
-        CollateralStatus err = CheckCollateral(vin, nHeight, false);
+        CollateralStatus err = CheckCollateral(vin);
         if (err == COLLATERAL_UTXO_NOT_FOUND) {
             LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
             return false;
         }
         if (err == COLLATERAL_INVALID_AMOUNT) {
-            LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO should have 1000 3DC, masternode=%s\n", vin.prevout.ToStringShort());
-            return false;
-        }
-        if(chainActive.Height() - nHeight + 1 < Params().GetConsensus().nMasternodeMinimumConfirmations) {
-            LogPrintf("CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO must have at least %d confirmations, masternode=%s\n",
-                    Params().GetConsensus().nMasternodeMinimumConfirmations, vin.prevout.ToStringShort());
-            // maybe we miss few blocks, let this mnb to be checked again later
-            mnodeman.mapSeenMasternodeBroadcast.erase(GetHash());
+            LogPrint("masternode", "CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO should have 25000 3DC, masternode=%s\n", vin.prevout.ToStringShort());
             return false;
         }
     }
