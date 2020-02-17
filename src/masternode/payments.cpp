@@ -257,14 +257,13 @@ bool WinnerIsmine(CMutableTransaction txNew, const CBlockIndex* pindexPrev) {
         }
    
     int nHeight = pindexPrev->nHeight+1;
-    int nBlockdiffTime = nHeight > 810000 ? 90: 120;
+    int nBlockdiffTime = 90;
 
     if (GetAdjustedTime() > pindexPrev->GetBlockTime()+nBlockdiffTime) {
-            int Count = std::abs(GetAdjustedTime() - pindexPrev->GetBlockTime())/60;
+            int Count = std::abs(GetAdjustedTime() - pindexPrev->GetBlockTime())/45;
 
-            mnodeman.UpdateLastPaid();
             CScript bpayee;
-            if(mnpayments.GetBlockPayee(nHeight+Count, bpayee)){
+            if(mnpayments.GetBlockPayee(nHeight-Count, bpayee)){
                 CTxDestination waddress;
                 ExtractDestination(bpayee, waddress);
                 CBitcoinAddress bwaddress(waddress);
@@ -277,50 +276,20 @@ bool WinnerIsmine(CMutableTransaction txNew, const CBlockIndex* pindexPrev) {
                     LogPrintf("CMasternodePayments::FillBlockPayee -- New miner is  %s\n", bwaddress.ToString());
                 }
 
-                if (Count > 5) { 
-                    //TODO add a better way to select a random masternode is case all the winners are offline
-                    if(mn.nBlockLastPaid == nHeight - Params().GetConsensus().nMinerConfirmationWindow/Count)
-                        return true;
-                }
-            }    
+               
+            }
+            else
+            {
+                masternodeSync.Reset();
+
+            }
+
     }
 
 
 
     return false;
 
-}
-
-bool SignBlock(int nHeight, CBlockv2* pblockv2) {
-
-
-    std::string Message = std::to_string(nHeight);
-    std::vector<unsigned char> vchSig;
-
-    if(!CMessageSigner::SignMessage(Message, vchSig, activeMasternode.keyMasternode)) {
-        LogPrintf("CMasternodePaymentSignBlock::Sign -- SignMessage() failed\n");
-        return false;
-        
-    }
-    //add MinerSig to the block
-    pblockv2->minerSig = vchSig;
-
-    LogPrintf("CMasternodePaymentSignBlock::Sign -- SignMessage() success %c\n", vchSig[0]);
-    return true;
-}
-
-bool IsBlockSigValid(CBlockv2* pblockv2, int nHeight){
-
-    //Check if BlockSig is valid and match the masternode pubkey
-    std::string strError;
-    std::string Message = std::to_string(nHeight);
-    if(!CMessageSigner::VerifyMessage(pblockv2->minerPubKey, pblockv2->minerSig, Message, strError)) {
-        LogPrintf("CMasternodePaymentIsBlockSigValid::Sign -- VerifyMessage() failed, error: %s\n", strError);
-        return false;
-    }
-    
-
-    return true;
 }
 
 
@@ -370,6 +339,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int nBlockH
 
     if(!mnpayments.GetBlockPayee(nBlockHeight, payee)) {
         // no masternode detected...
+        masternodeSync.Reset();
         int nCount = 0;
         CMasternode *winningNode = mnodeman.GetNextMasternodeInQueueForPayment(nBlockHeight, true, nCount);
         if(!winningNode) {
@@ -389,6 +359,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int nBlockH
 
     // add masternode vout
     txoutMasternodeRet = CTxOut(masternodePayment, payee);
+    txNew.vout.pop_back();
     txNew.vout.push_back(txoutMasternodeRet);
 
     CTxDestination address1;
