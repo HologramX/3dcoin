@@ -260,7 +260,7 @@ bool WinnerIsmine(CMutableTransaction txNew, const CBlockIndex* pindexPrev) {
     int nBlockdiffTime = 90;
 
     if (GetAdjustedTime() > pindexPrev->GetBlockTime()+nBlockdiffTime) {
-            int Count = std::abs(GetAdjustedTime() - pindexPrev->GetBlockTime())/30;
+            int Count = std::abs(GetAdjustedTime() - pindexPrev->GetBlockTime())/45;
 
             CScript bpayee;
             if(mnpayments.GetBlockPayee(nHeight-Count, bpayee)){
@@ -277,7 +277,13 @@ bool WinnerIsmine(CMutableTransaction txNew, const CBlockIndex* pindexPrev) {
                 }
 
                
-            }    
+            }
+            else
+            {
+                masternodeSync.Reset();
+
+            }
+
     }
 
 
@@ -333,6 +339,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int nBlockH
 
     if(!mnpayments.GetBlockPayee(nBlockHeight, payee)) {
         // no masternode detected...
+        masternodeSync.Reset();
         int nCount = 0;
         CMasternode *winningNode = mnodeman.GetNextMasternodeInQueueForPayment(nBlockHeight, true, nCount);
         if(!winningNode) {
@@ -352,6 +359,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int nBlockH
 
     // add masternode vout
     txoutMasternodeRet = CTxOut(masternodePayment, payee);
+    txNew.vout.pop_back();
     txNew.vout.push_back(txoutMasternodeRet);
 
     CTxDestination address1;
