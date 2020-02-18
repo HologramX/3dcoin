@@ -1,3 +1,88 @@
+
+## What's new:
+-**Upcoming updates**: Masternode Tokens
+
+https://github.com/BlockchainTechLLC/3dcoin/wiki/Masternode-Token(NFT)
+
+-**Announcements**: Dev Team Unlocked
+
+https://3dctalk.net/topic/1275/dev-team-unlocked
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## About
+
+**Project district** is the world's first fully capable decentralized virtual ecosystem, designed to project real-world and ethereal experiences to users all over the globe.
+
+**3DCoin** is a blockchain based peer to peer opensource cryptocurrency, it is part of the Districts ecosystem which puts a strong emphasis on entrepreneurship, simplifying not only currency exchange but also large-scale operations that it helps with automation using advanced smart contracts, decentralized apps and hosting, adding fluidity to everything with instant transaction confirmation. all the while being eco-friendly by having a consensus protocol that has a low energy and hardware requirement.
+
+
+
+## Our Vision
+
+Project Districts stemmed from a passion to create a boundless environment where real-world limitations and shortcomings are rendered invalid – In this world ‘possibility is the watchword. We wanted a system that nullified traditional barriers to innovation, one that went on to replace such limitations with the necessary tools needed to innovate, create and condensate ideas into workable solutions.
+
+## 3DCoin
+[What is 3DCoin?](https://github.com/BlockchainTechLLC/3dcoin/wiki/What-is-3DCoin%3F)
+
+[Specifications](https://github.com/BlockchainTechLLC/3dcoin/wiki/Specifications)
+
+[FAQ](https://github.com/BlockchainTechLLC/3dcoin/wiki/FAQ)
+
+[Acquiring 3DCoin](https://github.com/BlockchainTechLLC/3dcoin/wiki/Acquiring-3DCoin)
+
+[Wallet safety](https://github.com/BlockchainTechLLC/3dcoin/wiki/Wallet-safety)
+
+[Users Guide](https://github.com/BlockchainTechLLC/3dcoin/wiki/Users-Guide)
+
+[Masternodes](https://github.com/BlockchainTechLLC/3dcoin/wiki/Master-nodes)
+
+[Proof of sync](https://github.com/BlockchainTechLLC/3dcoin/wiki/Proof-of-sync)
+
+
+## Useful links
+
+[Whitepaper](https://github.com/BlockchainTechLLC/3dcoin/wiki/Project-Districts-Whitepaper) || [3DCoin.io](https://www.3dcoin.io/) || [Districts.io](https://www.districts.io) || [3DCtalk.net](https://3dctalk.net) || [3DCstats.net](https://3dcstats.net)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 3DCoin Core staging tree 0.14.1
 ===============================
 Web wallet: https://3dcoin.online
